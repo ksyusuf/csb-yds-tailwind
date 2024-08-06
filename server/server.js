@@ -47,11 +47,40 @@ function generateRandomData(count) {
     return data;
 }
 
-// Veri sağlayan endpoint
+
+// Filtreleme işlemi için veri sağlayan endpoint
 app.get('/api/data', (req, res) => {
     const count = parseInt(req.query.count) || 10; // Varsayılan olarak 10 veri
+    const filters = req.query.filters ? JSON.parse(req.query.filters) : {};
+    
     const data = generateRandomData(count);
-    res.json(data);
+    
+    const filteredData = data.filter(item => {
+        return Object.keys(filters).every(key => {
+            const filter = filters[key];
+            const value = item[key] ? item[key].toString().toLowerCase() : '';
+            const filterValue = filter.value.toLowerCase();
+            
+            switch (filter.type) {
+                case 'contains':
+                    return value.includes(filterValue);
+                case 'not_contains':
+                    return !value.includes(filterValue);
+                case 'starts_with':
+                    return value.startsWith(filterValue);
+                case 'ends_with':
+                    return value.endsWith(filterValue);
+                case 'equals':
+                    return value === filterValue;
+                case 'not_equals':
+                    return value !== filterValue;
+                default:
+                    return true;
+            }
+        });
+    });
+    
+    res.json(filteredData);
 });
 
 app.listen(port, () => {
