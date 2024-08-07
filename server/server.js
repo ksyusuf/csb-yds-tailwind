@@ -47,7 +47,6 @@ function generateRandomData(count) {
     return data;
 }
 
-
 // Filtreleme işlemi için veri sağlayan endpoint
 app.get('/api/data', (req, res) => {
     const count = parseInt(req.query.count) || 10; // Varsayılan olarak 10 veri
@@ -80,7 +79,14 @@ app.get('/api/data', (req, res) => {
         });
     });
     
-    res.json(filteredData);
+    // Başlıkları belirle
+    const headers = Object.keys(data[0] || {});
+
+    // Yanıtı gönder
+    res.json({
+        headers: headers,
+        data: filteredData
+    });
 });
 
 app.listen(port, () => {
