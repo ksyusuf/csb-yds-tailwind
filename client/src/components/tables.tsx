@@ -13,38 +13,6 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
   const [showFilterPopup, setShowFilterPopup] = useState(false);
   const [localFilters, setLocalFilters] = useState<Record<string, Filter>>({});
 
-  const columnWidths = {
-    "id": "50px",
-    "No.:": "70px",
-    "YİBF No": "150px",
-    "İl": "30px",
-    "İlgili İdare": "200px",
-    "Ada": "100px",
-    "Parsel": "120px",
-    "İş Başlık": "200px",
-    "Yapı Denetim Kuruluşu": "200px",
-    "İşin Durumu": "100px",
-    "Kısmi": "80px",
-    "Seviye": "60px",
-    "Sözleşme Tarihi": "120px",
-    "Kalan Alan (m²)": "120px",
-    "Yapı İnşaat Alanı (m²)": "120px",
-    "İlçe": "150px",
-    "Mahalle/Köy": "150px",
-    "Birim Fiyat": "100px",
-    "BKS Referans No": "150px",
-    "Ruhsat Tarihi": "120px",
-    "Yapı Sınıfı": "120px",
-    "Yapı Toplam Alanı (m²)": "150px",
-    "Küme Yapı Mı?": "80px",
-    "Eklenti": "150px",
-    "Sanayi Sitesi": "150px",
-    "Güçlendirme": "150px",
-    "Güçlendirme (Ruhsat)": "150px",
-    "GES": "80px",
-    "İşlemler": "150px"
-  };
-
   const handleFilterChange = (header: string, value: string, type: 'contains' | 'not_contains' | 'starts_with' | 'ends_with' | 'equals' | 'not_equals') => {
     const newFilter: Filter = { type, value };
     const newFilters = { ...filters, [header]: newFilter };
@@ -184,10 +152,7 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
           <tr className="bg-gray-100 border-b">
             <th className="py-2 px-4 text-left text-gray-600 font-semibold">G</th>
             {headers.map((header, index) => (
-              <th key={index}
-                  className="py-2 px-4 text-left text-gray-600 font-semibold"
-                  style={{ width: columnWidths[header as keyof typeof columnWidths] || 'auto' }} // Sütun genişliğini belirle
-              >
+              <th key={index} className="py-2 px-4 text-left text-gray-600 font-semibold">
                 {header}
               </th>
             ))}
@@ -214,9 +179,7 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
                     </button>
                   </td>
                   {headers.map((header, cellIndex) => (
-                    <td key={cellIndex} className={`py-2 px-4 text-gray-800`}
-                        style={{ width: columnWidths[header as keyof typeof columnWidths] || 'auto' }} // Sütun genişliğini belirle
-                    >
+                    <td key={cellIndex} className={`py-2 px-4 text-gray-800`}>
                       {row[header]}
                     </td>
                   ))}
@@ -224,7 +187,7 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
                 {expandedRows.has(rowIndex) && (
                   <tr className="bg-gray-100">
                     <td colSpan={headers.length + 1} className="py-2 px-4">
-                      <div className="block">
+                      <div className="block mt-2">
                         {headers.slice().map((header, cellIndex) => (
                           <div key={cellIndex} className="mb-2">
                             <strong>{header}:</strong> {row[header]}
