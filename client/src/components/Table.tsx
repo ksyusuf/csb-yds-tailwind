@@ -1,5 +1,10 @@
-import React, { useState } from 'react';
-import { Filter } from '../types'; // tür tanımını içe aktar
+import React, { useState, useEffect } from 'react';
+import TableHeader from './TableHeader';
+import TableBody from './TableBody';
+import FilterPopup from './FilterPopup';
+import useWindowWidth from '../Hooks/useWindowWidth';
+import useFilters from '../Hooks/useFilters';
+import { Filter } from '../types';
 
 interface TableProps {
   data: any[];
@@ -7,69 +12,50 @@ interface TableProps {
   onFilterChange: (filters: Record<string, Filter>) => void;
 }
 
+const columnWidths = {
+  // Örnek sütun genişlikleri
+  "id": "w-[50px]",
+  "No.:": "w-[70px]",
+  "YİBF No": "w-[150px]",
+  "İl": "w-[150px]",
+  "İlgili İdare": "w-[200px]",
+  "Ada": "w-[100px]",
+  "Parsel": "w-[120px]",
+  "İş Başlık": "w-[200px]",
+  "Yapı Denetim Kuruluşu": "w-[200px]",
+  "İşin Durumu": "w-[100px]",
+  "Kısmi": "w-[80px]",
+  "Seviye": "w-[60px]",
+  "Sözleşme Tarihi": "w-[120px]",
+  "Kalan Alan (m²)": "w-[120px]",
+  "Yapı İnşaat Alanı (m²)": "w-[120px]",
+  "İlçe": "w-[150px]",
+  "Mahalle/Köy": "w-[150px]",
+  "Birim Fiyat": "w-[100px]",
+  "BKS Referans No": "w-[150px]",
+  "Ruhsat Tarihi": "w-[120px]",
+  "Yapı Sınıfı": "w-[120px]",
+  "Yapı Toplam Alanı (m²)": "w-[150px]",
+  "Küme Yapı Mı?": "w-[80px]",
+  "Eklenti": "w-[150px]",
+  "Sanayi Sitesi": "w-[150px]",
+  "Güçlendirme": "w-[150px]",
+  "Güçlendirme (Ruhsat)": "w-[150px]",
+  "GES": "w-[80px]",
+  "İşlemler": "w-[150px]"
+};
+
 const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
-  const [filters, setFilters] = useState<Record<string, Filter>>({});
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
-  const [showFilterPopup, setShowFilterPopup] = useState(false);
-  const [localFilters, setLocalFilters] = useState<Record<string, Filter>>({});
-
-  const columnWidths = {
-    "id": "50px",
-    "No.:": "70px",
-    "YİBF No": "150px",
-    "İl": "30px",
-    "İlgili İdare": "200px",
-    "Ada": "100px",
-    "Parsel": "120px",
-    "İş Başlık": "200px",
-    "Yapı Denetim Kuruluşu": "200px",
-    "İşin Durumu": "100px",
-    "Kısmi": "80px",
-    "Seviye": "60px",
-    "Sözleşme Tarihi": "120px",
-    "Kalan Alan (m²)": "120px",
-    "Yapı İnşaat Alanı (m²)": "120px",
-    "İlçe": "150px",
-    "Mahalle/Köy": "150px",
-    "Birim Fiyat": "100px",
-    "BKS Referans No": "150px",
-    "Ruhsat Tarihi": "120px",
-    "Yapı Sınıfı": "120px",
-    "Yapı Toplam Alanı (m²)": "150px",
-    "Küme Yapı Mı?": "80px",
-    "Eklenti": "150px",
-    "Sanayi Sitesi": "150px",
-    "Güçlendirme": "150px",
-    "Güçlendirme (Ruhsat)": "150px",
-    "GES": "80px",
-    "İşlemler": "150px"
-  };
-
-  const handleFilterChange = (header: string, value: string, type: 'contains' | 'not_contains' | 'starts_with' | 'ends_with' | 'equals' | 'not_equals') => {
-    const newFilter: Filter = { type, value };
-    const newFilters = { ...filters, [header]: newFilter };
-    setFilters(newFilters);
-    onFilterChange(newFilters); // Filtreleri üst bileşene gönder
-  };
-
-  const handlePopupFilterChange = (header: string, value: string, type: 'contains' | 'not_contains' | 'starts_with' | 'ends_with' | 'equals' | 'not_equals') => {
-    const newFilter: Filter = { type, value };
-    const newLocalFilters = { ...localFilters, [header]: newFilter };
-    setLocalFilters(newLocalFilters);
-  };
-
-  const applyFilters = () => {
-    setFilters(localFilters);
-    onFilterChange(localFilters); // Filtreleri üst bileşene gönder
-    setShowFilterPopup(false); // Pop-up'ı kapat
-  };
-
-  const clearFilter = (header: string) => {
-    const newFilters = { ...filters };
-    delete newFilters[header];
-    setFilters(newFilters);
-    onFilterChange(newFilters); // Filtreleri üst bileşene gönder
-  };
+  const {
+    filters,
+    localFilters,
+    showFilterPopup,
+    setShowFilterPopup,
+    handlePopupFilterChange,
+    applyFilters,
+    clearFilter
+  } = useFilters(onFilterChange);
 
   const toggleRowExpansion = (rowIndex: number) => {
     setExpandedRows(prev => {
@@ -83,6 +69,17 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
     });
   };
 
+  const windowWidth = useWindowWidth();
+  const [visibleHeaders, setVisibleHeaders] = useState<string[]>([]);
+
+  useEffect(() => {
+    const totalWidth = Object.values(columnWidths).reduce((acc, width) => acc + parseInt(width.replace('px', ''), 10), 0);
+    const visibleWidth = windowWidth - 50; // To account for padding and scroll bar
+    const visibleCount = Math.floor(visibleWidth / 130); // Assuming average column width is 100px
+
+    setVisibleHeaders(headers.slice(0, visibleCount));
+  }, [windowWidth, headers, columnWidths]);
+
   return (
     <>
       <div className="mb-4">
@@ -95,77 +92,20 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
       </div>
 
       {showFilterPopup && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
-          <div className="relative bg-white p-4 rounded shadow-lg w-11/12 md:w-1/2 max-h-[80vh] overflow-y-auto">
-            {/* Pop-up başlığı ve kapatma butonu */}
-            <div className="sticky top-0 bg-white p-4 border-b z-10">
-              <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold">Filtreleme Seçenekleri</h2>
-                <button
-                  className="text-gray-600 hover:text-gray-800 text-xl"
-                  onClick={() => setShowFilterPopup(false)}
-                >
-                  &times;
-                </button>
-              </div>
-            </div>
-
-            {/* Pop-up içeriği */}
-            <div className="mt-4 grid gap-4 grid-cols-1 md:grid-cols-2">
-              {headers.map((header, index) => (
-                <div key={index} className="mb-4">
-                  <h3 className="font-medium mb-2">{header}</h3>
-                  <div className="flex flex-col md:flex-row md:items-center gap-2">
-                    <input
-                      type="text"
-                      placeholder="Değer girin..."
-                      className="border border-gray-300 rounded px-2 py-1 w-full"
-                      value={localFilters[header]?.value || ''}
-                      onChange={(e) => handlePopupFilterChange(header, e.target.value, localFilters[header]?.type || 'contains')}
-                    />
-                    <select
-                      className="border border-gray-300 rounded px-2 py-1 w-full md:w-auto"
-                      value={localFilters[header]?.type || 'contains'}
-                      onChange={(e) => handlePopupFilterChange(header, localFilters[header]?.value || '', e.target.value as 'contains' | 'not_contains' | 'starts_with' | 'ends_with' | 'equals' | 'not_equals')}
-                    >
-                      <option value="contains">İçeren</option>
-                      <option value="not_contains">İçermeyen</option>
-                      <option value="starts_with">İle başlar</option>
-                      <option value="ends_with">İle biter</option>
-                      <option value="equals">Eşittir</option>
-                      <option value="not_equals">Eşit değil</option>
-                    </select>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Butonlar */}
-            <div className="sticky bottom-0 bg-white p-4 border-t z-10 flex justify-end">
-              <button
-                className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
-                onClick={applyFilters}
-              >
-                Tamam
-              </button>
-              <button
-                className="bg-gray-300 text-black px-4 py-2 rounded"
-                onClick={() => setShowFilterPopup(false)}
-              >
-                İptal
-              </button>
-            </div>
-          </div>
-        </div>
+        <FilterPopup
+          headers={headers}
+          localFilters={localFilters}
+          handlePopupFilterChange={handlePopupFilterChange}
+          applyFilters={applyFilters}
+          closePopup={() => setShowFilterPopup(false)}
+        />
       )}
 
-      {/* Filtreler alanı */}
       <div className="mb-4">
         {Object.keys(filters).length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
             {Object.keys(filters).map((header) => (
               <span key={header} className="bg-gray-200 text-gray-800 px-3 py-1 rounded flex items-center">
-                
                 <button
                   className="text-red-500 hover:text-red-700"
                   onClick={() => clearFilter(header)}
@@ -179,66 +119,22 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
         )}
       </div>
 
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead>
-          <tr className="bg-gray-100 border-b">
-            <th className="py-2 px-4 text-left text-gray-600 font-semibold">G</th>
-            {headers.map((header, index) => (
-              <th key={index}
-                  className="py-2 px-4 text-left text-gray-600 font-semibold"
-                  style={{ width: columnWidths[header as keyof typeof columnWidths] || 'auto' }} // Sütun genişliğini belirle
-              >
-                {header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-        {data.length === 0 ? (
-            <tr className='bg-gray-50'>
-              <td colSpan={headers.length + 1} className="py-4 text-center text-black">
-                Filtrelemeye uygun veri bulunamadı
-              </td>
-            </tr>
-          ) : (
-            data.map((row, rowIndex) => (
-              <React.Fragment key={rowIndex}>
-                <tr className={rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                  <td>
-                    <button
-                      type="button"
-                      className="py-1 px-2 text-blue-500 hover:text-blue-700"
-                      onClick={() => toggleRowExpansion(rowIndex)}
-                    >
-                      {expandedRows.has(rowIndex) ? '-' : '+'}
-                    </button>
-                  </td>
-                  {headers.map((header, cellIndex) => (
-                    <td key={cellIndex} className={`py-2 px-4 text-gray-800`}
-                        style={{ width: columnWidths[header as keyof typeof columnWidths] || 'auto' }} // Sütun genişliğini belirle
-                    >
-                      {row[header]}
-                    </td>
-                  ))}
-                </tr>
-                {expandedRows.has(rowIndex) && (
-                  <tr className="bg-gray-100">
-                    <td colSpan={headers.length + 1} className="py-2 px-4">
-                      <div className="block">
-                        {headers.slice().map((header, cellIndex) => (
-                          <div key={cellIndex} className="mb-2">
-                            <strong>{header}:</strong> {row[header]}
-                          </div>
-                        ))}
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </React.Fragment>
-            ))
-          )}
-        </tbody>
-      </table>
+      <div className="overflow-x-auto w-full">
+      <table className="w-full table-fixed border-collapse">
+          <TableHeader
+            headers={headers}
+            columnWidths={columnWidths}
+            visibleHeaders={visibleHeaders} />
+          <TableBody
+            data={data}
+            headers={headers}
+            expandedRows={expandedRows}
+            toggleRowExpansion={toggleRowExpansion}
+            columnWidths={columnWidths}
+            visibleHeaders={visibleHeaders}
+          />
+        </table>
+      </div>
     </>
   );
 };
