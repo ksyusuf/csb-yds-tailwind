@@ -2,6 +2,10 @@
 import { useState } from 'react';
 import { Filter } from '../types';
 
+// todo: filtreleme yapıldığında filtreyi kaldırıp tekrardan filtreleme ekranını açında
+// pop-up içerisinde önceki filtreleme kalıyor. ve sıfırdan filtreleme yaptığımı sanıyorum ama olmuyor.
+// filtreleri temizleme fonksiyonu oluşturmak gerekiyor. useEffect mi useState mi kullanacağız?
+
 const useFilters = (onFilterChange: (filters: Record<string, Filter>) => void) => {
   const [filters, setFilters] = useState<Record<string, Filter>>({});
   const [localFilters, setLocalFilters] = useState<Record<string, Filter>>({});
