@@ -1,10 +1,7 @@
-// src/Hooks/useFilters.ts
 import { useState } from 'react';
 import { Filter } from '../types';
 
-// todo: filtreleme yapıldığında filtreyi kaldırıp tekrardan filtreleme ekranını açında
-// pop-up içerisinde önceki filtreleme kalıyor. ve sıfırdan filtreleme yaptığımı sanıyorum ama olmuyor.
-// filtreleri temizleme fonksiyonu oluşturmak gerekiyor. useEffect mi useState mi kullanacağız?
+// todo: filterleme yapıldıktan sonra tekrar filtreleme yapılacağı zaman eski filtreyi değiştiriyor.
 
 const useFilters = (onFilterChange: (filters: Record<string, Filter>) => void) => {
   const [filters, setFilters] = useState<Record<string, Filter>>({});
@@ -17,7 +14,6 @@ const useFilters = (onFilterChange: (filters: Record<string, Filter>) => void) =
     
     setFilters(newFilters);
     onFilterChange(newFilters);
-    
   };
 
   const handlePopupFilterChange = (header: string, value: string, type: Filter['type']) => {
@@ -29,6 +25,7 @@ const useFilters = (onFilterChange: (filters: Record<string, Filter>) => void) =
   const applyFilters = () => {
     setFilters(localFilters);
     onFilterChange(localFilters); // Filtreleri üst bileşene gönder
+    setLocalFilters({}); // Yerel filtreleri sıfırla
     setShowFilterPopup(false); // Pop-up'ı kapat
   };
 
@@ -37,13 +34,18 @@ const useFilters = (onFilterChange: (filters: Record<string, Filter>) => void) =
     delete newFilters[header];
     setFilters(newFilters);
     onFilterChange(newFilters); // Filtreleri üst bileşene gönder
+    
+    // Yerel filtreleri de temizle
+    const newLocalFilters = { ...localFilters };
+    delete newLocalFilters[header];
+    setLocalFilters(newLocalFilters);
   };
 
   return {
     filters,
     localFilters,
-    showFilterPopup, // Bu satırı ekleyin
-    setShowFilterPopup, // Bu satırı ekleyin
+    showFilterPopup,
+    setShowFilterPopup,
     handleFilterChange,
     handlePopupFilterChange,
     applyFilters,

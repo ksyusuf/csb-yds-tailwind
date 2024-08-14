@@ -38,8 +38,8 @@ const FilterPopup: React.FC<FilterPopupProps> = ({ headers, localFilters, handle
               />
               <select
                 className="border border-gray-300 rounded px-2 py-1 w-full md:w-auto"
-                value={localFilters[header]?.type || 'contains'}
-                onChange={(e) => handlePopupFilterChange(header, localFilters[header]?.value || '', e.target.value as Filter['type'])}
+                value={localFilters[header]?.type}
+                onChange={(e) => handlePopupFilterChange(header, localFilters[header]?.value, e.target.value as Filter['type'])}
               >
                 <option value="contains">İçeren</option>
                 <option value="not_contains">İçermeyen</option>
