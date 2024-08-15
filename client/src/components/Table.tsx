@@ -4,25 +4,25 @@ import TableBody from './TableBody';
 import FilterPopup from './FilterPopup';
 import useWindowWidth from '../Hooks/useWindowWidth';
 import useFilters from '../Hooks/useFilters';
-import { Filter } from '../types';
+import { Filter, ColumnKey } from '../types';
 
 interface TableProps {
   data: any[];
-  headers: string[];
+  headers: ColumnKey[];
   onFilterChange: (filters: Filter[]) => void; // Güncellenmiş filtre tipi
 }
 
 const columnWidths = {
   // Örnek sütun genişlikleri
-  "id": "w-[50px]",
-  "No.:": "w-[70px]",
-  "YİBF No": "w-[150px]",
-  "İl": "w-[150px]",
-  "İlgili İdare": "w-[200px]",
-  "Ada": "w-[100px]",
-  "Parsel": "w-[120px]",
-  "İş Başlık": "w-[200px]",
-  "Yapı Denetim Kuruluşu": "w-[200px]",
+  "id": "w-[30px]",
+  "No.": "w-[40px]",
+  "YİBF No": "w-[65px]",
+  "İl": "w-[70px]",
+  "İlgili İdare": "w-[100px]",
+  "Ada": "w-[50px]",
+  "Parsel": "w-[50px]",
+  "İş Başlık": "w-[100px]",
+  "Yapı Denetim Kuruluşu": "w-[150px]",
   "İşin Durumu": "w-[100px]",
   "Kısmi": "w-[80px]",
   "Seviye": "w-[60px]",
@@ -73,12 +73,34 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
   const [visibleHeaders, setVisibleHeaders] = useState<string[]>([]);
 
   useEffect(() => {
-    const totalWidth = Object.values(columnWidths).reduce((acc, width) => acc + parseInt(width.replace('px', ''), 10), 0);
+    const totalWidth = Object.values(columnWidths).reduce(
+      (acc, width) => acc + parseInt(width.replace('w-[', '').replace('px]', ''), 10),
+      0
+    );
     const visibleWidth = windowWidth - 50; // To account for padding and scroll bar
-    const visibleCount = Math.floor(visibleWidth / 130); // Assuming average column width is 130px
-
+    // Hesaplanan toplam genişlik ve görünür genişlik kullanılarak sütun sayısını hesaplayın
+    const visibleCount = Math.floor(visibleWidth / (totalWidth / headers.length));
     setVisibleHeaders(headers.slice(0, visibleCount));
   }, [windowWidth, headers]);
+  
+  const getFilterTypeLabel = (type: Filter['type']) => {
+    switch (type) {
+      case 'contains':
+        return 'İçeren';
+      case 'not_contains':
+        return 'İçermeyen';
+      case 'starts_with':
+        return 'İle Başlar';
+      case 'ends_with':
+        return 'İle Biter';
+      case 'equals':
+        return 'Eşittir';
+      case 'not_equals':
+        return 'Eşit Değil';
+      default:
+        return 'Bilinmeyen';
+    }
+  };
 
   return (
     <>
@@ -112,7 +134,9 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
                 >
                   &times;
                 </button>
-                <span className="ml-2">{filter.value}: {filter.type}</span>
+                <span className="ml-2">
+                  <strong>{filter.Column}:</strong> {filter.value} <em>({getFilterTypeLabel(filter.type)})</em>
+                </span>
               </span>
             ))}
           </div>

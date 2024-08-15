@@ -13,12 +13,34 @@ function generateRandomData(count) {
     for (let i = 1; i <= count; i++) {
         let userData = {
             id: i,
-            "No.:": `${i}`,
-            "YİBF No": `Yİ${i+50}BF N${i+50}o{i+50} İBF N${i+50}`,
-            "İl": `İlasdasdsad ${i}+${i}+${i}`,
+            "No.": `${i}`,
+            "YİBF No": Math.floor(10000000 + Math.random() * 9000), // 8 haneli sayı
+            "İl": [
+                'İstanbul',
+                'Ankara',
+                'İzmir',
+                'Bursa',
+                'Antalya',
+                'Adana',
+                'Konya',
+                'Gaziantep',
+                'Mersin',
+                'Kayseri'
+            ][Math.floor(Math.random() * [
+                'İstanbul',
+                'Ankara',
+                'İzmir',
+                'Bursa',
+                'Antalya',
+                'Adana',
+                'Konya',
+                'Gaziantep',
+                'Mersin',
+                'Kayseri'
+            ].length)],
             "İlgili İdare": `İlgili İdareili ili  ${i}`,
-            "Ada": `Ada ${i}`,
-            "Parsel": `Parsel ${i}${i}${i}`,
+            "Ada": Math.floor(1000 + Math.random() * 9000), // 4 haneli sayı
+            "Parsel": Math.floor(10 + Math.random() * 90), // 2 haneli sayı
             "İş Başlık": `İş Başlık ${i}+${i}+${i}`,
             "Yapı Denetim Kuruluşu": `Yapı Denetim Kuruluşu ${i}`,
             "İşin Durumu": `İşin Durumu ${i}`,
@@ -49,46 +71,52 @@ function generateRandomData(count) {
 }
 
 // Filtreleme işlemi için veri sağlayan endpoint
-app.post('/api/data', (req, res) => {
-    const { count = 10, filters = [] } = req.body;
+app.get('/api/data', (req, res) => {
+    const count = parseInt(req.query.count) || 10; // Varsayılan olarak 10 veri
+    const filters = req.query.filters ? JSON.parse(req.query.filters) : [];
 
-    let data = generateRandomData(count);
+    const data = generateRandomData(count);
 
-    // Filtreleri sırayla uygulama
-    filters.forEach(filter => {
-        data = data.filter(item => {
-            const value = item[filter.field] ? item[filter.field].toString().toLowerCase() : '';
-            const filterValue = filter.value.toLowerCase();
-            console.log(value);
-            
-            switch (filter.type) {
-                case 'contains':
-                    return value.includes(filterValue);
-                case 'not_contains':
-                    return !value.includes(filterValue);
-                case 'starts_with':
-                    return value.startsWith(filterValue);
-                case 'ends_with':
-                    return value.endsWith(filterValue);
-                case 'equals':
-                    return value === filterValue;
-                case 'not_equals':
-                    return value !== filterValue;
-                default:
-                    return true;
-            }
+    let filteredData = data;
+
+    // Filtreleri her biri için uygulama
+    if (filters.length > 0) {
+        filteredData = data.filter(item => {
+            return filters.every(filter => {
+                const value = item[filter.Column] ? item[filter.Column].toString().toLowerCase() : '';
+                const filterValue = filter.value.toLowerCase();
+
+                switch (filter.type) {
+                    case 'contains':
+                        return value.includes(filterValue);
+                    case 'not_contains':
+                        return !value.includes(filterValue);
+                    case 'starts_with':
+                        return value.startsWith(filterValue);
+                    case 'ends_with':
+                        return value.endsWith(filterValue);
+                    case 'equals':
+                        return value === filterValue;
+                    case 'not_equals':
+                        return value !== filterValue;
+                    default:
+                        return true;
+                }
+            });
         });
-    });
+    }
 
     // Başlıkları belirle
     const headers = Object.keys(data[0] || {});
-
+    
     // Yanıtı gönder
     res.json({
         headers: headers,
-        data: data
+        data: filteredData
     });
 });
+
+
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);

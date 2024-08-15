@@ -1,29 +1,28 @@
 import React, { useState } from 'react';
-import { Filter } from '../types';
+import { Filter, ColumnKey } from '../types';
 
 interface FilterPopupProps {
-  headers: string[];
+  headers: ColumnKey[];
   localFilters: Filter[];
-  handlePopupFilterChange: (header: string, value: string, type: Filter['type']) => void;
+  handlePopupFilterChange: (header: ColumnKey, value: string, type: Filter['type']) => void;
   applyFilters: () => void;
   closePopup: () => void;
 }
 
 const FilterPopup: React.FC<FilterPopupProps> = ({ headers, localFilters, handlePopupFilterChange, applyFilters, closePopup }) => {
-  // Kullanıcı tarafından seçilen filtre türü ve değeri
-  const [filterValues, setFilterValues] = useState<Record<string, { type: Filter['type']; value: string }>>(
+  const [filterValues, setFilterValues] = useState<Record<ColumnKey, { type: Filter['type']; value: string }>>(
     headers.reduce((acc, header) => {
       acc[header] = { type: 'contains', value: '' };
       return acc;
-    }, {} as Record<string, { type: Filter['type']; value: string }>)
+    }, {} as Record<ColumnKey, { type: Filter['type']; value: string }>)
   );
 
-  // Her bir filtre değeri değiştiğinde güncelle
-  const handleFilterChange = (header: string, value: string, type: Filter['type']) => {
+  const handleFilterChange = (header: ColumnKey, value: string, type: Filter['type']) => {
     setFilterValues(prev => ({
       ...prev,
       [header]: { type, value }
     }));
+    handlePopupFilterChange(header, value, type); // Bu satırı güncelledim
   };
 
   return (
@@ -42,10 +41,10 @@ const FilterPopup: React.FC<FilterPopupProps> = ({ headers, localFilters, handle
         </div>
 
         <div className="mt-4 grid gap-4 grid-cols-1 md:grid-cols-2">
-          {headers.map((header, index) => {
+          {headers.map((header) => {
             const { type, value } = filterValues[header] || { type: 'contains', value: '' };
             return (
-              <div key={index} className="mb-4">
+              <div key={header} className="mb-4">
                 <h3 className="font-medium mb-2">{header}</h3>
                 <div className="flex flex-col md:flex-row md:items-center gap-2">
                   <input
@@ -77,10 +76,6 @@ const FilterPopup: React.FC<FilterPopupProps> = ({ headers, localFilters, handle
           <button
             className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
             onClick={() => {
-              Object.keys(filterValues).forEach(header => {
-                const { type, value } = filterValues[header];
-                handlePopupFilterChange(header, value, type);
-              });
               applyFilters();
             }}
           >

@@ -9,7 +9,7 @@ interface TableHeaderProps {
 const TableHeader: React.FC<TableHeaderProps> = ({ headers, columnWidths, visibleHeaders }) => (
   <thead>
     <tr className="bg-gray-100 border-b">
-      <th className={`${columnWidths["id"]} p-2 text-blue-500 hover:text-blue-700break-words`}>G</th>
+      <th className={`${columnWidths["id"]} p-2 text-blue-500 hover:text-blue-700 break-words`}></th>
       {headers.map((header, index) => (
         visibleHeaders.includes(header) && ( // Conditionally render based on visibility
           <th
