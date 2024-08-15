@@ -5,12 +5,14 @@ import { Filter } from './types'; // Tür tanım dosyasından içe aktar
 const App: React.FC = () => {
   const [data, setData] = useState<any[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
-  const [filters, setFilters] = useState<Record<string, Filter>>({});
+  const [filters, setFilters] = useState<Filter[]>([]); // Güncellenmiş filtre tipi
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const filtersQuery = Object.keys(filters).length > 0 ? `&filters=${encodeURIComponent(JSON.stringify(filters))}` : '';
+        // Filtreleri query string olarak dönüştür
+        const filtersQuery = filters.length > 0 ? `&filters=${encodeURIComponent(JSON.stringify(filters))}` : '';
+        console.log(filters);
         const response = await fetch(`http://localhost:3001/api/data?count=10${filtersQuery}`);
         const result = await response.json();
         

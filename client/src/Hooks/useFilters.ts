@@ -1,44 +1,44 @@
 import { useState } from 'react';
 import { Filter } from '../types';
 
-// todo: filterleme yapıldıktan sonra tekrar filtreleme yapılacağı zaman eski filtreyi değiştiriyor.
-
-const useFilters = (onFilterChange: (filters: Record<string, Filter>) => void) => {
-  const [filters, setFilters] = useState<Record<string, Filter>>({});
-  const [localFilters, setLocalFilters] = useState<Record<string, Filter>>({});
+const useFilters = (onFilterChange: (filters: Filter[]) => void) => {
+  const [filters, setFilters] = useState<Filter[]>([]);
+  const [localFilters, setLocalFilters] = useState<Filter[]>([]);
   const [showFilterPopup, setShowFilterPopup] = useState(false);
 
-  const handleFilterChange = (header: string, value: string, type: Filter['type']) => {
+  // Filtreyi ekler
+  const addFilter = (value: string, type: Filter['type']) => {
     const newFilter: Filter = { type, value };
-    const newFilters = { ...filters, [header]: newFilter };
+    const updatedFilters = [...filters, newFilter];
     
-    setFilters(newFilters);
-    onFilterChange(newFilters);
+    setFilters(updatedFilters);
+    onFilterChange(updatedFilters); // Filtreleri üst bileşene gönder
   };
 
+  // Pop-up filtresi değiştiğinde çağrılır
   const handlePopupFilterChange = (header: string, value: string, type: Filter['type']) => {
     const newFilter: Filter = { type, value };
-    const newLocalFilters = { ...localFilters, [header]: newFilter };
-    setLocalFilters(newLocalFilters);
+    const updatedLocalFilters = [...localFilters, newFilter];
+    setLocalFilters(updatedLocalFilters);
   };
 
+  // Yerel filtreleri uygulama
   const applyFilters = () => {
-    setFilters(localFilters);
-    onFilterChange(localFilters); // Filtreleri üst bileşene gönder
-    setLocalFilters({}); // Yerel filtreleri sıfırla
+    const mergedFilters = [...filters, ...localFilters];
+    setFilters(mergedFilters);
+    onFilterChange(mergedFilters); // Filtreleri üst bileşene gönder
+    setLocalFilters([]); // Yerel filtreleri sıfırla
     setShowFilterPopup(false); // Pop-up'ı kapat
   };
 
-  const clearFilter = (header: string) => {
-    const newFilters = { ...filters };
-    delete newFilters[header];
-    setFilters(newFilters);
-    onFilterChange(newFilters); // Filtreleri üst bileşene gönder
-    
-    // Yerel filtreleri de temizle
-    const newLocalFilters = { ...localFilters };
-    delete newLocalFilters[header];
-    setLocalFilters(newLocalFilters);
+  // Belirli bir filtreyi temizler
+  const clearFilter = (filterToRemove: Filter) => {
+    const updatedFilters = filters.filter(f => f !== filterToRemove);
+    setFilters(updatedFilters);
+    onFilterChange(updatedFilters); // Filtreleri üst bileşene gönder
+
+    const updatedLocalFilters = localFilters.filter(f => f !== filterToRemove);
+    setLocalFilters(updatedLocalFilters);
   };
 
   return {
@@ -46,7 +46,7 @@ const useFilters = (onFilterChange: (filters: Record<string, Filter>) => void) =
     localFilters,
     showFilterPopup,
     setShowFilterPopup,
-    handleFilterChange,
+    addFilter,
     handlePopupFilterChange,
     applyFilters,
     clearFilter,

@@ -9,7 +9,7 @@ import { Filter } from '../types';
 interface TableProps {
   data: any[];
   headers: string[];
-  onFilterChange: (filters: Record<string, Filter>) => void;
+  onFilterChange: (filters: Filter[]) => void; // Güncellenmiş filtre tipi
 }
 
 const columnWidths = {
@@ -75,10 +75,10 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
   useEffect(() => {
     const totalWidth = Object.values(columnWidths).reduce((acc, width) => acc + parseInt(width.replace('px', ''), 10), 0);
     const visibleWidth = windowWidth - 50; // To account for padding and scroll bar
-    const visibleCount = Math.floor(visibleWidth / 130); // Assuming average column width is 100px
+    const visibleCount = Math.floor(visibleWidth / 130); // Assuming average column width is 130px
 
     setVisibleHeaders(headers.slice(0, visibleCount));
-  }, [windowWidth, headers, columnWidths]);
+  }, [windowWidth, headers]);
 
   return (
     <>
@@ -102,17 +102,17 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
       )}
 
       <div className="mb-4">
-        {Object.keys(filters).length > 0 && (
+        {filters.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
-            {Object.keys(filters).map((header) => (
-              <span key={header} className="bg-gray-200 text-gray-800 px-3 py-1 rounded flex items-center">
+            {filters.map((filter, index) => (
+              <span key={index} className="bg-gray-200 text-gray-800 px-3 py-1 rounded flex items-center">
                 <button
                   className="text-red-500 hover:text-red-700"
-                  onClick={() => clearFilter(header)}
+                  onClick={() => clearFilter(filter)}
                 >
                   &times;
                 </button>
-                <span className="ml-2">{header}: {filters[header].value} ({filters[header].type})</span>
+                <span className="ml-2">{filter.value}: {filter.type}</span>
               </span>
             ))}
           </div>
@@ -120,11 +120,12 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
       </div>
 
       <div className="overflow-x-auto w-full">
-      <table className="w-full table-fixed border-collapse">
+        <table className="w-full table-fixed border-collapse">
           <TableHeader
             headers={headers}
             columnWidths={columnWidths}
-            visibleHeaders={visibleHeaders} />
+            visibleHeaders={visibleHeaders}
+          />
           <TableBody
             data={data}
             headers={headers}

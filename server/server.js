@@ -5,6 +5,7 @@ const port = 3001;
 
 // CORS ayarları
 app.use(cors());
+app.use(express.json()); // JSON verileri işlemek için
 
 // Rasgele veri oluşturma fonksiyonu
 function generateRandomData(count) {
@@ -48,17 +49,17 @@ function generateRandomData(count) {
 }
 
 // Filtreleme işlemi için veri sağlayan endpoint
-app.get('/api/data', (req, res) => {
-    const count = parseInt(req.query.count) || 10; // Varsayılan olarak 10 veri
-    const filters = req.query.filters ? JSON.parse(req.query.filters) : {};
-    
-    const data = generateRandomData(count);
-    
-    const filteredData = data.filter(item => {
-        return Object.keys(filters).every(key => {
-            const filter = filters[key];
-            const value = item[key] ? item[key].toString().toLowerCase() : '';
+app.post('/api/data', (req, res) => {
+    const { count = 10, filters = [] } = req.body;
+
+    let data = generateRandomData(count);
+
+    // Filtreleri sırayla uygulama
+    filters.forEach(filter => {
+        data = data.filter(item => {
+            const value = item[filter.field] ? item[filter.field].toString().toLowerCase() : '';
             const filterValue = filter.value.toLowerCase();
+            console.log(value);
             
             switch (filter.type) {
                 case 'contains':
@@ -78,14 +79,14 @@ app.get('/api/data', (req, res) => {
             }
         });
     });
-    
+
     // Başlıkları belirle
     const headers = Object.keys(data[0] || {});
 
     // Yanıtı gönder
     res.json({
         headers: headers,
-        data: filteredData
+        data: data
     });
 });
 

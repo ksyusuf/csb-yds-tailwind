@@ -33,7 +33,7 @@ const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, togg
               {headers.map((header, cellIndex) => (
                 visibleHeaders.includes(header) && ( // Conditionally render based on visibility
                   <td key={cellIndex}
-                      className={`${columnWidths[header]} p-2 text-left text-gray-600 font-semibold break-words`}
+                      className={`${columnWidths[header]} p-2 text-left text-gray-600 break-words`}
                   >
                     {row[header]}
                   </td>
