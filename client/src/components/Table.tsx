@@ -151,6 +151,9 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
             headers={headers}
             columnWidths={columnWidths}
             visibleHeaders={visibleHeaders}
+            handlePopupFilterChange={handlePopupFilterChange}
+            localFilters={localFilters}
+            applyFilters={applyFilters}
           />
           <TableBody
             data={data}
