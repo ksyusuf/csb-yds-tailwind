@@ -7,9 +7,10 @@ interface TableBodyProps {
   toggleRowExpansion: (rowIndex: number) => void;
   columnWidths: Record<string, string>;
   visibleHeaders: string[]; // Added prop for visible headers
+  visibleHeadersCount: number;
 }
 
-const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, toggleRowExpansion, columnWidths, visibleHeaders }) => (
+const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, toggleRowExpansion, columnWidths, visibleHeaders, visibleHeadersCount }) => (
   <tbody>
     {data.length === 0 ? (
       <tr className='bg-gray-50'>
@@ -42,7 +43,7 @@ const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, togg
             </tr>
             {expandedRows.has(rowIndex) && (
             <tr className="bg-gray-100">
-                <td colSpan={headers.length + 1} className="py-2 px-4">
+                <td colSpan={visibleHeadersCount+1} className="py-2 px-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* İlk yarı */}
                     <div className="space-y-2">

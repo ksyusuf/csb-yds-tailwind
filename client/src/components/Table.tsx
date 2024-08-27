@@ -71,6 +71,7 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
 
   const windowWidth = useWindowWidth();
   const [visibleHeaders, setVisibleHeaders] = useState<string[]>([]);
+  const [visibleHeadersCount, setVisibleHeadersCount] = useState<number>(0);
 
   useEffect(() => {
     const totalWidth = Object.values(columnWidths).reduce(
@@ -80,6 +81,7 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
     const visibleWidth = windowWidth - 50; // To account for padding and scroll bar
     // Hesaplanan toplam genişlik ve görünür genişlik kullanılarak sütun sayısını hesaplayın
     const visibleCount = Math.floor(visibleWidth / (totalWidth / headers.length));
+    setVisibleHeadersCount(visibleCount);
     setVisibleHeaders(headers.slice(0, visibleCount));
   }, [windowWidth, headers]);
   
@@ -157,6 +159,7 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
             toggleRowExpansion={toggleRowExpansion}
             columnWidths={columnWidths}
             visibleHeaders={visibleHeaders}
+            visibleHeadersCount={visibleHeadersCount}
           />
         </table>
       </div>

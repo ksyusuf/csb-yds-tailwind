@@ -70,12 +70,12 @@ function generateRandomData(count) {
     return data;
 }
 
+const data = generateRandomData(15);
+
 // Filtreleme işlemi için veri sağlayan endpoint
 app.get('/api/data', (req, res) => {
     const count = parseInt(req.query.count) || 10; // Varsayılan olarak 10 veri
     const filters = req.query.filters ? JSON.parse(req.query.filters) : [];
-
-    const data = generateRandomData(count);
 
     let filteredData = data;
 
