@@ -70,7 +70,7 @@ function generateRandomData(count) {
     return data;
 }
 
-const data = generateRandomData(15);
+const data = generateRandomData(65);
 
 // Filtreleme işlemi için veri sağlayan endpoint
 app.get('/api/data', (req, res) => {
@@ -106,13 +106,22 @@ app.get('/api/data', (req, res) => {
         });
     }
 
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    
+    filteredDataSliced = filteredData.slice(startIndex, endIndex);
+
     // Başlıkları belirle
     const headers = Object.keys(data[0] || {});
     
     // Yanıtı gönder
     res.json({
         headers: headers,
-        data: filteredData
+        data: filteredDataSliced,
+        total: filteredData.length
     });
 });
 
