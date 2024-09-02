@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import TableHeader from './TableHeader';
 import TableBody from './TableBody';
 import FilterPopup from './FilterPopup';
@@ -9,11 +9,10 @@ import { Filter, ColumnKey } from '../types';
 interface TableProps {
   data: any[];
   headers: ColumnKey[];
-  onFilterChange: (filters: Filter[]) => void; // Güncellenmiş filtre tipi
+  onFilterChange: (filters: Filter[]) => void;
 }
 
 const columnWidths = {
-  // Örnek sütun genişlikleri
   "id": "w-[30px]",
   "No.": "w-[40px]",
   "YİBF No": "w-[65px]",
@@ -47,6 +46,9 @@ const columnWidths = {
 
 const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const [sortColumn, setSortColumn] = useState<ColumnKey | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
   const {
     filters,
     localFilters,
@@ -78,13 +80,31 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
       (acc, width) => acc + parseInt(width.replace('w-[', '').replace('px]', ''), 10),
       0
     );
-    const visibleWidth = windowWidth - 50; // To account for padding and scroll bar
-    // Hesaplanan toplam genişlik ve görünür genişlik kullanılarak sütun sayısını hesaplayın
+    const visibleWidth = windowWidth - 50;
     const visibleCount = Math.floor(visibleWidth / (totalWidth / headers.length));
     setVisibleHeadersCount(visibleCount);
     setVisibleHeaders(headers.slice(0, visibleCount));
   }, [windowWidth, headers]);
-  
+
+  const handleSort = (column: ColumnKey, direction: 'asc' | 'desc') => {
+    setSortColumn(column);
+    setSortDirection(direction);
+  };
+
+  const sortedData = React.useMemo(() => {
+    if (!sortColumn) return data;
+
+    const sorted = [...data].sort((a, b) => {
+      const aValue = a[sortColumn];
+      const bValue = b[sortColumn];
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return sorted;
+  }, [data, sortColumn, sortDirection]);
+
   const getFilterTypeLabel = (type: Filter['type']) => {
     switch (type) {
       case 'contains':
@@ -147,7 +167,6 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
         )}
       </div>
 
-
       <div className="overflow-x-auto w-full">
         <table className="w-full table-fixed border-collapse">
           <TableHeader
@@ -157,9 +176,12 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
             handlePopupFilterChange={handlePopupFilterChange}
             localFilters={localFilters}
             applyFilters={applyFilters}
+            onSort={handleSort}
+            sortColumn={sortColumn}
+            sortDirection={sortDirection}
           />
           <TableBody
-            data={data}
+            data={sortedData} // Pass sorted data to TableBody
             headers={headers}
             expandedRows={expandedRows}
             toggleRowExpansion={toggleRowExpansion}

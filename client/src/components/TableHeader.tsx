@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faTimes, faArrowRight, faArrowLeft, faEquals, faNotEqual } from '@fortawesome/free-solid-svg-icons';
 import { Filter, ColumnKey } from '../types';
@@ -10,20 +10,30 @@ interface TableHeaderProps {
   localFilters: Filter[];
   handlePopupFilterChange: (header: ColumnKey, value: string, type: Filter['type']) => void;
   applyFilters: () => void;
+  onSort: (column: ColumnKey, direction: 'asc' | 'desc') => void; // Added for sorting
+  sortColumn: ColumnKey | null; // Added for sorting
+  sortDirection: 'asc' | 'desc'; // Added for sorting
 }
 
-const TableHeader: React.FC<TableHeaderProps> = ({ headers, localFilters, columnWidths, visibleHeaders, handlePopupFilterChange, applyFilters }) => {
-
+const TableHeader: React.FC<TableHeaderProps> = ({
+  headers,
+  localFilters,
+  columnWidths,
+  visibleHeaders,
+  handlePopupFilterChange,
+  applyFilters,
+  onSort,
+  sortColumn,
+  sortDirection
+}) => {
   const [selectedFilter, setSelectedFilter] = useState<{ [key: string]: { value: string; type: Filter['type'] } }>({});
   const [dropdownVisible, setDropdownVisible] = useState<{ [key: string]: boolean }>({});
-
   const [inputValues, setInputValues] = useState<Record<ColumnKey, string>>(
     headers.reduce((acc, header) => {
       acc[header] = '';
       return acc;
     }, {} as Record<ColumnKey, string>)
   );
-
   const [filterValues, setFilterValues] = useState<Record<ColumnKey, { type: Filter['type']; value: string }>>(
     headers.reduce((acc, header) => {
       acc[header] = { type: 'contains', value: '' };
@@ -36,7 +46,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({ headers, localFilters, column
       ...prev,
       [header]: { type, value }
     }));
-    handlePopupFilterChange(header, value, type); // Bu satırı güncelledim
+    handlePopupFilterChange(header, value, type);
   };
 
   const handleFilterOptionClick = (header: ColumnKey, type: Filter['type']) => {
@@ -48,22 +58,15 @@ const TableHeader: React.FC<TableHeaderProps> = ({ headers, localFilters, column
   };
 
   const handleInputChange = (header: ColumnKey, value: string) => {
-
-    // Update the input values state
     setInputValues(prev => ({
       ...prev,
       [header]: value
     }));
-    
-    // Update the selected filter value in state
     setSelectedFilter(prev => ({
       ...prev,
       [header]: { value, type: prev[header]?.type || 'contains' }
     }));
-
     handleFilterChange(header, value, filterValues[header]?.type || 'contains');
-
-    // Update the filter values state
     setFilterValues(prev => ({
       ...prev,
       [header]: { type: prev[header]?.type || 'contains', value }
@@ -72,15 +75,11 @@ const TableHeader: React.FC<TableHeaderProps> = ({ headers, localFilters, column
 
   const handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>, header: ColumnKey) => {
     if (e.key === 'Enter') {
-      // Apply filters when Enter key is pressed
       applyFilters();
-
-      // Clear the input field
       setInputValues(prev => ({
         ...prev,
         [header]: ''
       }));
-      // Also clear the filter value
       setFilterValues(prev => ({
         ...prev,
         [header]: { type: 'contains', value: '' }
@@ -93,6 +92,11 @@ const TableHeader: React.FC<TableHeaderProps> = ({ headers, localFilters, column
       ...prev,
       [header]: !prev[header]
     }));
+  };
+
+  const handleSort = (column: ColumnKey) => {
+    const direction = sortColumn === column && sortDirection === 'asc' ? 'desc' : 'asc';
+    onSort(column, direction);
   };
 
   const filterOptionsClass = "w-3 h-3 inline-block mr-2";
@@ -119,10 +123,12 @@ const TableHeader: React.FC<TableHeaderProps> = ({ headers, localFilters, column
           visibleHeaders.includes(header) && (
             <th
               key={index}
-              
               className={`${columnWidths[header]} p-2 text-left text-gray-600 font-semibold break-words`}
             >
-              {header}
+              <button onClick={() => handleSort(header)} className="flex items-center">
+                {header}
+                {sortColumn === header && (sortDirection === 'asc' ? ' ▲' : ' ▼')}
+              </button>
             </th>
           )
         ))}
