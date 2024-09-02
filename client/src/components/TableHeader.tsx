@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback  } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faTimes, faArrowRight, faArrowLeft, faEquals, faNotEqual } from '@fortawesome/free-solid-svg-icons';
 import { Filter, ColumnKey } from '../types';
@@ -12,11 +12,17 @@ interface TableHeaderProps {
   applyFilters: () => void;
 }
 
-const TableHeader: React.FC<TableHeaderProps> = ({ headers, columnWidths, visibleHeaders, applyFilters, handlePopupFilterChange }) => {
+const TableHeader: React.FC<TableHeaderProps> = ({ headers, localFilters, columnWidths, visibleHeaders, handlePopupFilterChange, applyFilters }) => {
 
   const [selectedFilter, setSelectedFilter] = useState<{ [key: string]: { value: string; type: Filter['type'] } }>({});
   const [dropdownVisible, setDropdownVisible] = useState<{ [key: string]: boolean }>({});
-  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  const [inputValues, setInputValues] = useState<Record<ColumnKey, string>>(
+    headers.reduce((acc, header) => {
+      acc[header] = '';
+      return acc;
+    }, {} as Record<ColumnKey, string>)
+  );
 
   const [filterValues, setFilterValues] = useState<Record<ColumnKey, { type: Filter['type']; value: string }>>(
     headers.reduce((acc, header) => {
@@ -26,7 +32,6 @@ const TableHeader: React.FC<TableHeaderProps> = ({ headers, columnWidths, visibl
   );
 
   const handleFilterChange = (header: ColumnKey, value: string, type: Filter['type']) => {
-    console.log('Filter change:', { header, value, type });
     setFilterValues(prev => ({
       ...prev,
       [header]: { type, value }
@@ -35,44 +40,53 @@ const TableHeader: React.FC<TableHeaderProps> = ({ headers, columnWidths, visibl
   };
 
   const handleFilterOptionClick = (header: ColumnKey, type: Filter['type']) => {
-    handleFilterChange(header, selectedFilter[header]?.value || '', type);
+    handleFilterChange(header, filterValues[header]?.value || '', type);
     setDropdownVisible(prev => ({
       ...prev,
       [header]: false
     }));
   };
 
-  
-  const handleInputChange = useCallback((header: ColumnKey, value: string) => {
-    console.log('Karakter basıldı.', header, "value:", value);
+  const handleInputChange = (header: ColumnKey, value: string) => {
 
-    // Clear any existing timeout
-    if (searchTimeout) {
-      clearTimeout(searchTimeout);
-    }
-
-    // Set the filter value and type in state
+    // Update the input values state
+    setInputValues(prev => ({
+      ...prev,
+      [header]: value
+    }));
+    
+    // Update the selected filter value in state
     setSelectedFilter(prev => ({
       ...prev,
       [header]: { value, type: prev[header]?.type || 'contains' }
     }));
 
-    // Call the filter change handler
-    handleFilterChange(header, value, selectedFilter[header]?.type || 'contains');
-    console.log('Filter change üst:', { header, value });
-    handlePopupFilterChange(header, value, selectedFilter[header]?.type || 'contains');
-    
-    // Set a new timeout for applying filters
-    const timeout = setTimeout(() => {
-      console.log('apply filtering.', header, value);
+    handleFilterChange(header, value, filterValues[header]?.type || 'contains');
+
+    // Update the filter values state
+    setFilterValues(prev => ({
+      ...prev,
+      [header]: { type: prev[header]?.type || 'contains', value }
+    }));
+  };
+
+  const handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>, header: ColumnKey) => {
+    if (e.key === 'Enter') {
+      // Apply filters when Enter key is pressed
       applyFilters();
-    }, 1000); // Debounce input changes
 
-    setSearchTimeout(timeout);
-    
-  }, [searchTimeout, selectedFilter, handleFilterChange, applyFilters, handlePopupFilterChange]);
-  
-
+      // Clear the input field
+      setInputValues(prev => ({
+        ...prev,
+        [header]: ''
+      }));
+      // Also clear the filter value
+      setFilterValues(prev => ({
+        ...prev,
+        [header]: { type: 'contains', value: '' }
+      }));
+    }
+  }, [filterValues, handleFilterChange, applyFilters]);
 
   const toggleDropdown = (header: ColumnKey) => {
     setDropdownVisible(prev => ({
@@ -80,16 +94,6 @@ const TableHeader: React.FC<TableHeaderProps> = ({ headers, columnWidths, visibl
       [header]: !prev[header]
     }));
   };
-  
-  useEffect(() => {
-    // Cleanup the timeout on component unmount or when searchTimeout changes
-    return () => {
-      if (searchTimeout) {
-        clearTimeout(searchTimeout);
-      }
-    };
-  }, [searchTimeout]); // Dependency array ensures the cleanup runs when searchTimeout changes
-  
 
   const filterOptionsClass = "w-3 h-3 inline-block mr-2";
   const filterOptions = [
@@ -100,6 +104,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({ headers, columnWidths, visibl
     { text: 'Eşittir', value: 'equals' as Filter['type'], icon: <FontAwesomeIcon icon={faEquals} className={filterOptionsClass} /> },
     { text: 'Eşit değil', value: 'not_equals' as Filter['type'], icon: <FontAwesomeIcon icon={faNotEqual} className={filterOptionsClass} /> },
   ];
+  
   const getSelectedIcon = (header: string) => {
     const selectedType = selectedFilter[header]?.type;
     const selectedOption = filterOptions.find(option => option.text.toLowerCase().replace(' ', '_') === selectedType);
@@ -114,6 +119,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({ headers, columnWidths, visibl
           visibleHeaders.includes(header) && (
             <th
               key={index}
+              
               className={`${columnWidths[header]} p-2 text-left text-gray-600 font-semibold break-words`}
             >
               {header}
@@ -156,8 +162,9 @@ const TableHeader: React.FC<TableHeaderProps> = ({ headers, columnWidths, visibl
                   type="text"
                   placeholder="Ara"
                   className="w-full h-8 px-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:border-blue-500"
-                  value={selectedFilter[header]?.value || ''}
+                  value={inputValues[header] || ''}
                   onChange={(e) => handleInputChange(header, e.target.value)}
+                  onKeyDown={(e) => handleKeyPress(e, header)}
                 />
               </div>
             </th>

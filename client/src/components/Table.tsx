@@ -124,12 +124,14 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
           closePopup={() => setShowFilterPopup(false)}
         />
       )}
-
       <div className="mb-4">
         {filters.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
             {filters.map((filter, index) => (
-              <span key={index} className="bg-gray-200 text-gray-800 px-3 py-1 rounded flex items-center">
+              <span
+                key={index}
+                className={`text-gray-800 px-3 py-1 rounded flex items-center ${data.length === 0 ? 'bg-red-200' : 'bg-gray-200'}`}
+              >
                 <button
                   className="text-red-500 hover:text-red-700"
                   onClick={() => clearFilter(filter)}
@@ -144,6 +146,7 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
           </div>
         )}
       </div>
+
 
       <div className="overflow-x-auto w-full">
         <table className="w-full table-fixed border-collapse">

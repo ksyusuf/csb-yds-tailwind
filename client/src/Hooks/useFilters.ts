@@ -17,7 +17,6 @@ const useFilters = (onFilterChange: (filters: Filter[]) => void) => {
 
   // Pop-up filtresi değiştiğinde çağrılır
   const handlePopupFilterChange = (Column: ColumnKey, value: string, type: Filter['type']) => {
-    console.log("handlePopupFilterChange", Column ,value, type);
     const newFilter: Filter = { Column, type, value };
     setLocalFilters(prev => {
       const existingFilterIndex = prev.findIndex(f => f.Column === Column);
@@ -34,9 +33,7 @@ const useFilters = (onFilterChange: (filters: Filter[]) => void) => {
 
   // Yerel filtreleri uygulama
   const applyFilters = () => {
-    console.log("mergedFilters", filters ,"---", localFilters);
     const mergedFilters = [...filters, ...localFilters];
-    console.log("mergedFilters", mergedFilters);
     setFilters(mergedFilters);
     onFilterChange(mergedFilters); // Filtreleri üst bileşene gönder
     setLocalFilters([]); // Yerel filtreleri sıfırla
@@ -48,7 +45,6 @@ const useFilters = (onFilterChange: (filters: Filter[]) => void) => {
     const updatedFilters = filters.filter(f => f !== filterToRemove);
     setFilters(updatedFilters);
     onFilterChange(updatedFilters); // Filtreleri üst bileşene gönder
-    console.log("updatedFilters", updatedFilters);
     const updatedLocalFilters = localFilters.filter(f => f !== filterToRemove);
     setLocalFilters(updatedLocalFilters);
   };
