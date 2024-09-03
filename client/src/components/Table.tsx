@@ -20,7 +20,7 @@ const columnWidths = {
   "İlgili İdare": "w-[100px]",
   "Ada": "w-[50px]",
   "Parsel": "w-[50px]",
-  "İş Başlık": "w-[100px]",
+  "İş Başlık": "w-[110px]",
   "Yapı Denetim Kuruluşu": "w-[150px]",
   "İşin Durumu": "w-[100px]",
   "Kısmi": "w-[80px]",
@@ -47,7 +47,7 @@ const columnWidths = {
 const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
   const [sortColumn, setSortColumn] = useState<ColumnKey | null>(null);
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | 'default'>('asc');
 
   const {
     filters,
@@ -86,13 +86,15 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
     setVisibleHeaders(headers.slice(0, visibleCount));
   }, [windowWidth, headers]);
 
-  const handleSort = (column: ColumnKey, direction: 'asc' | 'desc') => {
+  const handleSort = (column: ColumnKey, direction: 'asc' | 'desc' | 'default') => {
+    // eğer 3. bir durum olursa burada sütunu id ye göre ayarlayacağız bu kadar.
     setSortColumn(column);
     setSortDirection(direction);
   };
 
   const sortedData = React.useMemo(() => {
     if (!sortColumn) return data;
+    if (sortDirection === 'default') return data; // sorting default ise sıralama iptal.
 
     const sorted = [...data].sort((a, b) => {
       const aValue = a[sortColumn];

@@ -10,9 +10,9 @@ interface TableHeaderProps {
   localFilters: Filter[];
   handlePopupFilterChange: (header: ColumnKey, value: string, type: Filter['type']) => void;
   applyFilters: () => void;
-  onSort: (column: ColumnKey, direction: 'asc' | 'desc') => void; // Added for sorting
+  onSort: (column: ColumnKey, direction: 'asc' | 'desc' | 'default') => void; // Added for sorting
   sortColumn: ColumnKey | null; // Added for sorting
-  sortDirection: 'asc' | 'desc'; // Added for sorting
+  sortDirection: 'asc' | 'desc' | 'default'; // Added for sorting
 }
 
 const TableHeader: React.FC<TableHeaderProps> = ({
@@ -95,7 +95,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
   };
 
   const handleSort = (column: ColumnKey) => {
-    const direction = sortColumn === column && sortDirection === 'asc' ? 'desc' : 'asc';
+    const direction = (sortColumn === column && sortDirection === 'asc' ? 'desc' : (sortColumn === column && sortDirection === 'desc' ? 'default' : 'asc'));
     onSort(column, direction);
   };
 
@@ -127,7 +127,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
             >
               <button onClick={() => handleSort(header)} className="flex items-center">
                 {header}
-                {sortColumn === header && (sortDirection === 'asc' ? ' ▲' : ' ▼')}
+                {sortColumn === header && (sortDirection === 'asc' ? ' ▲' : sortDirection === 'desc' ? ' ▼' : '')}
               </button>
             </th>
           )
