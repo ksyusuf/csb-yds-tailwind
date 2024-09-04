@@ -106,6 +106,30 @@ app.get('/api/data', (req, res) => {
         });
     }
 
+    // sayfalama yapmdan önce gelen veriyi isteğe göre sıralayalım.
+    const sortColumn = JSON.parse(req.query.sorting)['column'];
+    const sortDirection = JSON.parse(req.query.sorting)['direction'];
+
+    function Sorting(data, sortColumn, sortDirection){
+        if (!sortColumn) return data;
+        if (sortDirection === 'default') return data; // sorting default ise sıralama iptal.
+    
+        const sorted = [...data].sort((a, b) => {
+          const aValue = a[sortColumn];
+          const bValue = b[sortColumn];
+          if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+          if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+          return 0;
+        });
+    
+        return sorted;
+    };
+
+    if( sortColumn != null ){
+        // eğer sıralama isteği varsa sıralayacak
+        filteredData = Sorting(filteredData, sortColumn, sortDirection);
+    }
+
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     

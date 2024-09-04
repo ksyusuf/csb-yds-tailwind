@@ -127,7 +127,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
             >
               <button onClick={() => handleSort(header)} className="flex items-center">
                 {header}
-                {sortColumn === header && (sortDirection === 'asc' ? ' ▲' : sortDirection === 'desc' ? ' ▼' : '')}
+                {sortColumn === header && (sortDirection === 'asc' ? ' ▼' : sortDirection === 'desc' ? ' ▲' : '')}
               </button>
             </th>
           )

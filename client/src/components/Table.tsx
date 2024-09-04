@@ -10,6 +10,7 @@ interface TableProps {
   data: any[];
   headers: ColumnKey[];
   onFilterChange: (filters: Filter[]) => void;
+  onSorting: (column: ColumnKey, direction: 'asc' | 'desc' | 'default') => void;
 }
 
 const columnWidths = {
@@ -44,7 +45,7 @@ const columnWidths = {
   "İşlemler": "w-[150px]"
 };
 
-const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
+const Table: React.FC<TableProps> = ({ data, headers, onFilterChange, onSorting }) => {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
   const [sortColumn, setSortColumn] = useState<ColumnKey | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | 'default'>('asc');
@@ -90,22 +91,8 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
     // eğer 3. bir durum olursa burada sütunu id ye göre ayarlayacağız bu kadar.
     setSortColumn(column);
     setSortDirection(direction);
+    onSorting(column, direction); // sıralama bilgilerini üst bileşene gönder.
   };
-
-  const sortedData = React.useMemo(() => {
-    if (!sortColumn) return data;
-    if (sortDirection === 'default') return data; // sorting default ise sıralama iptal.
-
-    const sorted = [...data].sort((a, b) => {
-      const aValue = a[sortColumn];
-      const bValue = b[sortColumn];
-      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-      return 0;
-    });
-
-    return sorted;
-  }, [data, sortColumn, sortDirection]);
 
   const getFilterTypeLabel = (type: Filter['type']) => {
     switch (type) {
@@ -183,7 +170,7 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
             sortDirection={sortDirection}
           />
           <TableBody
-            data={sortedData} // Pass sorted data to TableBody
+            data={data}
             headers={headers}
             expandedRows={expandedRows}
             toggleRowExpansion={toggleRowExpansion}
