@@ -14,7 +14,7 @@ const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, togg
   <tbody>
     {data.length === 0 ? (
       <tr className='bg-gray-50'>
-        <td colSpan={headers.length + 1} className="py-4 text-center text-black">
+        <td colSpan={visibleHeadersCount + 1} className="py-4 text-center text-black">
           Filtrelemeye uygun veri bulunamadı
         </td>
       </tr>
