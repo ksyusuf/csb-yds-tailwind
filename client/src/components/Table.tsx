@@ -14,8 +14,7 @@ interface TableProps {
 }
 
 const columnWidths = {
-  "id": "w-[30px]",
-  "No.": "w-[40px]",
+  "İşlemler": "w-[40px]",
   "YİBF No": "w-[65px]",
   "İl": "w-[70px]",
   "İlgili İdare": "w-[100px]",
@@ -41,8 +40,7 @@ const columnWidths = {
   "Sanayi Sitesi": "w-[150px]",
   "Güçlendirme": "w-[150px]",
   "Güçlendirme (Ruhsat)": "w-[150px]",
-  "GES": "w-[80px]",
-  "İşlemler": "w-[150px]"
+  "GES": "w-[80px]"
 };
 
 const Table: React.FC<TableProps> = ({ data, headers, onFilterChange, onSorting }) => {

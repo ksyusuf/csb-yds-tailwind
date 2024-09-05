@@ -12,8 +12,7 @@ function generateRandomData(count) {
     let data = [];
     for (let i = 1; i <= count; i++) {
         let userData = {
-            id: i,
-            "No.": `${i}`,
+            "İşlemler": `${i}`,
             "YİBF No": Math.floor(10000000 + Math.random() * 9000), // 8 haneli sayı
             "İl": [
                 'İstanbul',
@@ -61,8 +60,7 @@ function generateRandomData(count) {
             "Sanayi Sitesi": `Sanayi Sitesi ${i}`,
             "Güçlendirme": `Güçlendirme ${i}`,
             "Güçlendirme (Ruhsat)": `Güçlendirme (Ruhsat) ${i}`,
-            "GES": Math.random() < 0.3 ? 'Evet' : 'Hayır',
-            "İşlemler": `İşlem ${i}`
+            "GES": Math.random() < 0.3 ? 'Evet' : 'Hayır'
         };
 
         data.push(userData);

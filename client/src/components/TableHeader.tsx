@@ -115,11 +115,23 @@ const TableHeader: React.FC<TableHeaderProps> = ({
     return selectedOption ? selectedOption.icon : <FontAwesomeIcon icon={faSearch} className="w-3 h-3 inline-block" />;
   };
 
+  let headers_sliced = headers.slice(1)
+
   return (
     <thead>
       <tr className="bg-gray-100 border-b">
-        <th className={`${columnWidths["id"]} p-2 text-blue-500 hover:text-blue-700 break-words`}></th>
-        {headers.map((header, index) => (
+      {headers.includes('İşlemler') && (
+          <th
+            key="İşlemler"
+            className={`${columnWidths['İşlemler']} text-center text-gray-600 font-semibold text-sm`}
+          >
+            İşlemler
+          </th>
+        )}
+
+        <th className='w-[10px] p-2 text-blue-500 hover:text-blue-700 break-words'></th>
+        
+        {headers_sliced.map((header, index) => (
           visibleHeaders.includes(header) && (
             <th
               key={index}
@@ -134,8 +146,9 @@ const TableHeader: React.FC<TableHeaderProps> = ({
         ))}
       </tr>
       <tr className="bg-gray-50 border-b">
-        <th className={`${columnWidths["id"]} p-2`}></th>
-        {headers.map((header, index) => (
+        <th className='w-[20px]'></th>
+        <th className='w-[10px]'></th>
+        {headers_sliced.map((header, index) => (
           visibleHeaders.includes(header) && (
             <th
               key={index}
