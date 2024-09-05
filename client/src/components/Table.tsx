@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import TableHeader from './TableHeader';
 import TableBody from './TableBody';
 import FilterPopup from './FilterPopup';
@@ -9,11 +9,11 @@ import { Filter, ColumnKey } from '../types';
 interface TableProps {
   data: any[];
   headers: ColumnKey[];
-  onFilterChange: (filters: Filter[]) => void; // Güncellenmiş filtre tipi
+  onFilterChange: (filters: Filter[]) => void;
+  onSorting: (column: ColumnKey, direction: 'asc' | 'desc' | 'default') => void;
 }
 
 const columnWidths = {
-  // Örnek sütun genişlikleri
   "id": "w-[30px]",
   "No.": "w-[40px]",
   "YİBF No": "w-[65px]",
@@ -21,7 +21,7 @@ const columnWidths = {
   "İlgili İdare": "w-[100px]",
   "Ada": "w-[50px]",
   "Parsel": "w-[50px]",
-  "İş Başlık": "w-[100px]",
+  "İş Başlık": "w-[110px]",
   "Yapı Denetim Kuruluşu": "w-[150px]",
   "İşin Durumu": "w-[100px]",
   "Kısmi": "w-[80px]",
@@ -45,8 +45,11 @@ const columnWidths = {
   "İşlemler": "w-[150px]"
 };
 
-const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
+const Table: React.FC<TableProps> = ({ data, headers, onFilterChange, onSorting }) => {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const [sortColumn, setSortColumn] = useState<ColumnKey | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | 'default'>('asc');
+
   const {
     filters,
     localFilters,
@@ -78,13 +81,19 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
       (acc, width) => acc + parseInt(width.replace('w-[', '').replace('px]', ''), 10),
       0
     );
-    const visibleWidth = windowWidth - 50; // To account for padding and scroll bar
-    // Hesaplanan toplam genişlik ve görünür genişlik kullanılarak sütun sayısını hesaplayın
+    const visibleWidth = windowWidth - 50;
     const visibleCount = Math.floor(visibleWidth / (totalWidth / headers.length));
     setVisibleHeadersCount(visibleCount);
     setVisibleHeaders(headers.slice(0, visibleCount));
   }, [windowWidth, headers]);
-  
+
+  const handleSort = (column: ColumnKey, direction: 'asc' | 'desc' | 'default') => {
+    // eğer 3. bir durum olursa burada sütunu id ye göre ayarlayacağız bu kadar.
+    setSortColumn(column);
+    setSortDirection(direction);
+    onSorting(column, direction); // sıralama bilgilerini üst bileşene gönder.
+  };
+
   const getFilterTypeLabel = (type: Filter['type']) => {
     switch (type) {
       case 'contains':
@@ -147,7 +156,6 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
         )}
       </div>
 
-
       <div className="overflow-x-auto w-full">
         <table className="w-full table-fixed border-collapse">
           <TableHeader
@@ -157,6 +165,9 @@ const Table: React.FC<TableProps> = ({ data, headers, onFilterChange }) => {
             handlePopupFilterChange={handlePopupFilterChange}
             localFilters={localFilters}
             applyFilters={applyFilters}
+            onSort={handleSort}
+            sortColumn={sortColumn}
+            sortDirection={sortDirection}
           />
           <TableBody
             data={data}

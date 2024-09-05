@@ -11,13 +11,15 @@ const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  // sıralama işlemleri için
+  const [sortingDict, setSortingSet] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Filtreleri query string olarak dönüştür
         const filtersQuery = filters.length > 0 ? `&filters=${encodeURIComponent(JSON.stringify(filters))}` : '';
-        const response = await fetch(`http://localhost:3001/api/data?count=10${filtersQuery}&page=${currentPage}&limit=${itemsPerPage}`);
+        const response = await fetch(`http://localhost:3001/api/data?count=10${filtersQuery}&page=${currentPage}&limit=${itemsPerPage}&sorting=${encodeURIComponent(JSON.stringify(sortingDict))}`);
         const result = await response.json();
         setData(result.data);
         setTotalItems(result.total);
@@ -31,21 +33,30 @@ const App: React.FC = () => {
     };
 
     fetchData();
-  }, [filters, currentPage, itemsPerPage]); // Filters değiştiğinde veri tekrar çekilir
+  }, [filters, currentPage, itemsPerPage, sortingDict]); // bu parametrelerden biri değiştiğinde veri tekrar çekilir.
 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  const setSorting = (column: ColumnKey, direction: 'asc' | 'desc' | 'default') => {
+    const sortingDict = {"column": column, "direction": direction}
+    setSortingSet(sortingDict);
+  };
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Yapı Denetim Sistemi</h1>
-      <Table data={data} headers={headers} onFilterChange={setFilters} />
+      <Table
+            data={data}
+            headers={headers}
+            onFilterChange={setFilters}
+            onSorting={setSorting} />
       <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={totalItems}
-                itemsPerPage={itemsPerPage}
-                onPageChange={setCurrentPage}
-                onItemsPerPageChange={setItemsPerPage}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
             />
     </div>
   );
