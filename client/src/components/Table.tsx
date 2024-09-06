@@ -14,7 +14,6 @@ interface TableProps {
 }
 
 const columnWidths = {
-  "İşlemler": "w-[40px]",
   "YİBF No": "w-[65px]",
   "İl": "w-[70px]",
   "İlgili İdare": "w-[100px]",

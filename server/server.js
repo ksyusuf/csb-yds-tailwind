@@ -12,7 +12,6 @@ function generateRandomData(count) {
     let data = [];
     for (let i = 1; i <= count; i++) {
         let userData = {
-            "İşlemler": `${i}`,
             "YİBF No": Math.floor(10000000 + Math.random() * 9000), // 8 haneli sayı
             "İl": [
                 'İstanbul',

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch , faLayerGroup, faPlug, faEllipsisVertical, faEquals, faNotEqual } from '@fortawesome/free-solid-svg-icons';
+import { faLayerGroup, faBarsStaggered, faCalendarDays, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 
 interface TableBodyProps {
   data: any[];
@@ -14,12 +14,9 @@ interface TableBodyProps {
 
 const SettingsOptionsClass = "w-4 h-4 inline-block";
 const filterOptions = [
-  { text: 'İçeren', value: 'contains', icon: <FontAwesomeIcon icon={faLayerGroup} className={SettingsOptionsClass} /> },
-  { text: 'İçermeyen', value: 'not_contains', icon: <FontAwesomeIcon icon={faPlug} className={SettingsOptionsClass} /> },
-  { text: 'İle başlar', value: 'starts_with', icon: <FontAwesomeIcon icon={faPlug} className={SettingsOptionsClass} /> },
-  { text: 'İle biter', value: 'ends_with', icon: <FontAwesomeIcon icon={faEllipsisVertical} className={SettingsOptionsClass} /> },
-  { text: 'Eşittir', value: 'equals', icon: <FontAwesomeIcon icon={faEquals} className={SettingsOptionsClass} /> },
-  { text: 'Eşit değil', value: 'not_equals', icon: <FontAwesomeIcon icon={faNotEqual} className={SettingsOptionsClass} /> },
+  { text: 'YİBF Göster', value: 'not_contains', icon: <FontAwesomeIcon icon={faBarsStaggered} className={SettingsOptionsClass} /> },
+  { text: 'İşlem Tarihçesi', value: 'starts_with', icon: <FontAwesomeIcon icon={faCalendarDays} className={SettingsOptionsClass} /> },
+  { text: 'Sorun Göster', value: 'ends_with', icon: <FontAwesomeIcon icon={faTriangleExclamation} className={SettingsOptionsClass} /> }
 ];
 
 // Varsayılan bir ikon tanımlıyoruz
@@ -45,8 +42,6 @@ const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, togg
     return selectedOption ? selectedOption.icon : defaultIcon; // Eğer bir filtre seçilmemişse default icon gösterilir
   };
 
-  let data_sliced 
-  
   return (
     <tbody>
       {data.length === 0 ? (
@@ -58,7 +53,7 @@ const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, togg
       ) : (
         data.map((row, rowIndex) => (
           <React.Fragment key={rowIndex}>
-            <tr className={rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+            <tr className={rowIndex % 2 === 0 ? 'bg-gray-100' : 'bg-white'}>
             <td className='text-center'>
                 <button
                   className="text-gray-600 hover:text-gray-800"
@@ -79,7 +74,7 @@ const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, togg
               <td className='text-center'>
                 <button
                   type="button"
-                  className={`${columnWidths["id"]} p-2 hover:text-blue-700 break-words`}
+                  className='hover:text-blue-700'
                   onClick={() => toggleRowExpansion(rowIndex)}
                 >
                   {expandedRows.has(rowIndex) ? '-' : '+'}
@@ -99,7 +94,7 @@ const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, togg
             </tr>
             {expandedRows.has(rowIndex) && (
             <tr className="bg-gray-100">
-                <td colSpan={visibleHeadersCount+1} className="py-2 px-4">
+                <td colSpan={visibleHeadersCount+2} className="py-2 px-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* İlk yarı */}
                     <div className="space-y-2">

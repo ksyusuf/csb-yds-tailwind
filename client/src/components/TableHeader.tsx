@@ -115,27 +115,22 @@ const TableHeader: React.FC<TableHeaderProps> = ({
     return selectedOption ? selectedOption.icon : <FontAwesomeIcon icon={faSearch} className="w-3 h-3 inline-block" />;
   };
 
-  let headers_sliced = headers.slice(1)
-
   return (
     <thead>
-      <tr className="bg-gray-100 border-b">
-      {headers.includes('İşlemler') && (
-          <th
+      <tr className="bg-gray-200 border-b">
+      <th
+            colSpan={2}
             key="İşlemler"
-            className={`${columnWidths['İşlemler']} text-center text-gray-600 font-semibold text-sm`}
+            className={'w-[40px] text-center text-gray-600 font-semibold text-sm'}
           >
-            İşlemler
+            İşlem
           </th>
-        )}
 
-        <th className='w-[10px] p-2 text-blue-500 hover:text-blue-700 break-words'></th>
-        
-        {headers_sliced.map((header, index) => (
+        {headers.map((header, index) => (
           visibleHeaders.includes(header) && (
             <th
               key={index}
-              className={`${columnWidths[header]} p-2 text-left text-gray-600 font-semibold break-words`}
+              className={`${columnWidths[header]} p-2 text-left text-gray-600 font-semibold break-words text-sm`}
             >
               <button onClick={() => handleSort(header)} className="flex items-center">
                 {header}
@@ -145,10 +140,10 @@ const TableHeader: React.FC<TableHeaderProps> = ({
           )
         ))}
       </tr>
-      <tr className="bg-gray-50 border-b">
+      <tr className="bg-gray-200 border-b">
         <th className='w-[20px]'></th>
         <th className='w-[10px]'></th>
-        {headers_sliced.map((header, index) => (
+        {headers.map((header, index) => (
           visibleHeaders.includes(header) && (
             <th
               key={index}
