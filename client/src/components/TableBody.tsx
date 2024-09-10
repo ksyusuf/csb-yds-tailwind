@@ -42,6 +42,19 @@ const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, togg
     return selectedOption ? selectedOption.icon : defaultIcon; // Eğer bir filtre seçilmemişse default icon gösterilir
   };
 
+  function getValueForHeader(json: any, header: string) {
+    // ilgili header değerinin gelen veri json içerisindeki değerini bulur getirir.
+    let value = "";
+    for (const section in json) {
+      
+        if (json[section][header] !== undefined) {
+            value = json[section][header];
+            break;
+        }
+    }
+    return value;
+}
+
   return (
     <tbody>
       {data.length === 0 ? (
@@ -81,12 +94,12 @@ const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, togg
                 </button>
               </td>
               {headers.map((header, cellIndex) => (
-                header !== 'İşlemler' && visibleHeaders.includes(header) && ( // "no" header'ı pas geç
+                visibleHeaders.includes(header) && ( // "no" header'ı pas geç
                   <td
                     key={cellIndex}
                     className={`${columnWidths[header]} p-2 text-left text-gray-600 break-words`}
                   >
-                    {row[header]}
+                    {getValueForHeader(row, headers[cellIndex])}
                   </td>
                 )
               ))}
@@ -100,7 +113,7 @@ const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, togg
                     <div className="space-y-2">
                     {headers.slice(0, Math.ceil(headers.length / 2)).map((header, cellIndex) => (
                         <div key={cellIndex} className="p-2 border bg-white rounded">
-                        <strong>{header}:</strong> {row[header]}
+                        <strong>{header}:</strong> {getValueForHeader(row, headers[cellIndex])}
                         </div>
                     ))}
                     </div>
@@ -108,7 +121,7 @@ const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, togg
                     <div className="space-y-2">
                     {headers.slice(Math.ceil(headers.length / 2)).map((header, cellIndex) => (
                         <div key={cellIndex + Math.ceil(headers.length / 2)} className="p-2 border bg-white rounded">
-                        <strong>{header}:</strong> {row[header]}
+                        <strong>{header}:</strong> {getValueForHeader(row, headers[cellIndex + Math.ceil(headers.length / 2)])}
                         </div>
                     ))}
                     </div>

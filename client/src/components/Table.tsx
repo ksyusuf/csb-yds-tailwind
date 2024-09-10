@@ -14,14 +14,14 @@ interface TableProps {
 }
 
 const columnWidths = {
-  "YİBF No": "w-[65px]",
-  "İl": "w-[70px]",
-  "İlgili İdare": "w-[100px]",
-  "Ada": "w-[50px]",
-  "Parsel": "w-[50px]",
-  "İş Başlık": "w-[110px]",
-  "Yapı Denetim Kuruluşu": "w-[150px]",
-  "İşin Durumu": "w-[100px]",
+  "YİBF No": "w-[80px]",
+  "İl": "w-[80px]",
+  "İlgili İdare": "w-[115px]",
+  "Ada": "w-[60px]",
+  "Parsel": "w-[60px]",
+  "İş Başlık": "w-[150px]",
+  "Yapı Denetim Kuruluşu": "w-[170px]",
+  "İşin Durumu": "w-[110px]",
   "Kısmi": "w-[80px]",
   "Seviye": "w-[60px]",
   "Sözleşme Tarihi": "w-[120px]",

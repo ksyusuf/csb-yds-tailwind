@@ -18,8 +18,8 @@ const App: React.FC = () => {
     const fetchData = async () => {
       try {
         // Filtreleri query string olarak dönüştür
-        const filtersQuery = filters.length > 0 ? `&filters=${encodeURIComponent(JSON.stringify(filters))}` : '';
-        const response = await fetch(`http://localhost:3001/api/data?count=10${filtersQuery}&page=${currentPage}&limit=${itemsPerPage}&sorting=${encodeURIComponent(JSON.stringify(sortingDict))}`);
+        const filtersQuery = filters.length > 0 ? `filters=${encodeURIComponent(JSON.stringify(filters))}` : '';
+        const response = await fetch(`http://localhost:3001/api/data?${filtersQuery}&page=${currentPage}&limit=${itemsPerPage}&sorting=${encodeURIComponent(JSON.stringify(sortingDict))}`);
         const result = await response.json();
         setData(result.data);
         setTotalItems(result.total);
@@ -33,7 +33,8 @@ const App: React.FC = () => {
     };
 
     fetchData();
-  }, [filters, currentPage, itemsPerPage, sortingDict]); // bu parametrelerden biri değiştiğinde veri tekrar çekilir.
+    // bu parametrelerden biri değiştiğinde veri tekrar çekilir.
+  }, [filters, currentPage, itemsPerPage, sortingDict]);
 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
