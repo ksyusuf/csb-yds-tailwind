@@ -14,16 +14,14 @@ interface TableProps {
 }
 
 const columnWidths = {
-  "id": "w-[30px]",
-  "No.": "w-[40px]",
-  "YİBF No": "w-[65px]",
-  "İl": "w-[70px]",
-  "İlgili İdare": "w-[100px]",
-  "Ada": "w-[50px]",
-  "Parsel": "w-[50px]",
-  "İş Başlık": "w-[110px]",
-  "Yapı Denetim Kuruluşu": "w-[150px]",
-  "İşin Durumu": "w-[100px]",
+  "YİBF No": "w-[80px]",
+  "İl": "w-[80px]",
+  "İlgili İdare": "w-[115px]",
+  "Ada": "w-[60px]",
+  "Parsel": "w-[60px]",
+  "İş Başlık": "w-[150px]",
+  "Yapı Denetim Kuruluşu": "w-[170px]",
+  "İşin Durumu": "w-[110px]",
   "Kısmi": "w-[80px]",
   "Seviye": "w-[60px]",
   "Sözleşme Tarihi": "w-[120px]",
@@ -41,8 +39,7 @@ const columnWidths = {
   "Sanayi Sitesi": "w-[150px]",
   "Güçlendirme": "w-[150px]",
   "Güçlendirme (Ruhsat)": "w-[150px]",
-  "GES": "w-[80px]",
-  "İşlemler": "w-[150px]"
+  "GES": "w-[80px]"
 };
 
 const Table: React.FC<TableProps> = ({ data, headers, onFilterChange, onSorting }) => {

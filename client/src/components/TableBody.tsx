@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLayerGroup, faBarsStaggered, faCalendarDays, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 
 interface TableBodyProps {
   data: any[];
@@ -6,50 +8,112 @@ interface TableBodyProps {
   expandedRows: Set<number>;
   toggleRowExpansion: (rowIndex: number) => void;
   columnWidths: Record<string, string>;
-  visibleHeaders: string[]; // Added prop for visible headers
+  visibleHeaders: string[];
   visibleHeadersCount: number;
 }
 
-const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, toggleRowExpansion, columnWidths, visibleHeaders, visibleHeadersCount }) => (
-  <tbody>
-    {data.length === 0 ? (
-      <tr className='bg-gray-50'>
-        <td colSpan={visibleHeadersCount + 1} className="py-4 text-center text-black">
-          Filtrelemeye uygun veri bulunamadı
-        </td>
-      </tr>
-    ) : (
-      data.map((row, rowIndex) => (
-        <React.Fragment key={rowIndex}>
-            <tr className={rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-              <td>
+const SettingsOptionsClass = "w-4 h-4 inline-block";
+const filterOptions = [
+  { text: 'YİBF Göster', value: 'not_contains', icon: <FontAwesomeIcon icon={faBarsStaggered} className={SettingsOptionsClass} /> },
+  { text: 'İşlem Tarihçesi', value: 'starts_with', icon: <FontAwesomeIcon icon={faCalendarDays} className={SettingsOptionsClass} /> },
+  { text: 'Sorun Göster', value: 'ends_with', icon: <FontAwesomeIcon icon={faTriangleExclamation} className={SettingsOptionsClass} /> }
+];
+
+// Varsayılan bir ikon tanımlıyoruz
+const defaultIcon = <FontAwesomeIcon icon={faLayerGroup} className={SettingsOptionsClass} />;
+
+const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, toggleRowExpansion, columnWidths, visibleHeaders, visibleHeadersCount }) => {
+  const [selectedFilter, setSelectedFilter] = useState<Record<string, { type: string }>>({});
+  const [dropdowns, setDropdowns] = useState<Record<string, boolean>>({}); // Dropdown durumlarını yönetmek için
+
+  // Dropdown açma-kapama fonksiyonu
+  const toggleDropdown = (header: string) => {
+    setDropdowns(prev => ({ ...prev, [header]: !prev[header] }));
+  };
+
+  const handleFilterChange = (header: string, option: { text: string; value: string }) => {
+    setSelectedFilter(prev => ({ ...prev, [header]: { type: option.value } }));
+    toggleDropdown(header); // Dropdown'ı kapat
+  };
+
+  const getSelectedIcon = (header: string) => {
+    const selectedType = selectedFilter[header]?.type;
+    const selectedOption = filterOptions.find(option => option.value === selectedType);
+    return selectedOption ? selectedOption.icon : defaultIcon; // Eğer bir filtre seçilmemişse default icon gösterilir
+  };
+
+  function getValueForHeader(json: any, header: string) {
+    // ilgili header değerinin gelen veri json içerisindeki değerini bulur getirir.
+    let value = "";
+    for (const section in json) {
+      
+        if (json[section][header] !== undefined) {
+            value = json[section][header];
+            break;
+        }
+    }
+    return value;
+}
+
+  return (
+    <tbody>
+      {data.length === 0 ? (
+        <tr className='bg-gray-50'>
+          <td colSpan={visibleHeadersCount + 1} className="py-4 text-center text-black">
+            Filtrelemeye uygun veri bulunamadı
+          </td>
+        </tr>
+      ) : (
+        data.map((row, rowIndex) => (
+          <React.Fragment key={rowIndex}>
+            <tr className={rowIndex % 2 === 0 ? 'bg-gray-100' : 'bg-white'}>
+            <td className='text-center'>
+                <button
+                  className="text-gray-600 hover:text-gray-800"
+                  onClick={() => toggleDropdown(headers[rowIndex])} // header indexine göre açılır
+                >
+                  {getSelectedIcon(headers[rowIndex])}
+                </button>
+                {dropdowns[headers[rowIndex]] && (
+                  <div className="absolute bg-white shadow-md p-2">
+                    {filterOptions.map((option, idx) => (
+                      <div key={idx} className="p-1 hover:bg-gray-200 cursor-pointer text-left" onClick={() => handleFilterChange(headers[rowIndex], option)}>
+                        {option.icon} <span className="ml-2">{option.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </td>
+              <td className='text-center'>
                 <button
                   type="button"
-                  className={`${columnWidths["id"]} p-2 hover:text-blue-700 break-words`}
+                  className='hover:text-blue-700'
                   onClick={() => toggleRowExpansion(rowIndex)}
                 >
                   {expandedRows.has(rowIndex) ? '-' : '+'}
                 </button>
               </td>
               {headers.map((header, cellIndex) => (
-                visibleHeaders.includes(header) && ( // Conditionally render based on visibility
-                  <td key={cellIndex}
-                      className={`${columnWidths[header]} p-2 text-left text-gray-600 break-words`}
+                visibleHeaders.includes(header) && ( // "no" header'ı pas geç
+                  <td
+                    key={cellIndex}
+                    className={`${columnWidths[header]} p-2 text-left text-gray-600 break-words`}
                   >
-                    {row[header]}
+                    {getValueForHeader(row, headers[cellIndex])}
                   </td>
                 )
               ))}
+
             </tr>
             {expandedRows.has(rowIndex) && (
             <tr className="bg-gray-100">
-                <td colSpan={visibleHeadersCount+1} className="py-2 px-4">
+                <td colSpan={visibleHeadersCount+2} className="py-2 px-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* İlk yarı */}
                     <div className="space-y-2">
                     {headers.slice(0, Math.ceil(headers.length / 2)).map((header, cellIndex) => (
                         <div key={cellIndex} className="p-2 border bg-white rounded">
-                        <strong>{header}:</strong> {row[header]}
+                        <strong>{header}:</strong> {getValueForHeader(row, headers[cellIndex])}
                         </div>
                     ))}
                     </div>
@@ -57,7 +121,7 @@ const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, togg
                     <div className="space-y-2">
                     {headers.slice(Math.ceil(headers.length / 2)).map((header, cellIndex) => (
                         <div key={cellIndex + Math.ceil(headers.length / 2)} className="p-2 border bg-white rounded">
-                        <strong>{header}:</strong> {row[header]}
+                        <strong>{header}:</strong> {getValueForHeader(row, headers[cellIndex + Math.ceil(headers.length / 2)])}
                         </div>
                     ))}
                     </div>
@@ -70,5 +134,6 @@ const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, togg
     )}
   </tbody>
 );
+};
 
 export default TableBody;
