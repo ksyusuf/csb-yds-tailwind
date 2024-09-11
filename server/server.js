@@ -74,6 +74,8 @@ function generateRandomData(count) {
                 "Parsel": Math.floor(10 + Math.random() * 90),
                 "İş Başlık": `İş Başlık ${i}+${i}+${i}`,
                 "Yapı Denetim Kuruluşu": `Yapı Denetim Kuruluşu ${i}`,
+                "Yapı Denetim Adres": `Yapı Denetim Adres ${i}`,
+                "Yapı Denetim Telefon": `0${Math.floor(Math.random() * 9000000000 + 1000000000)}`,
                 "İşin Durumu": `İşin Durumu ${i}`,
                 "Kısmi": `Kısmi ${i}`,
                 "Seviye": Math.floor(Math.random() * 10) + 1,
@@ -90,6 +92,11 @@ function generateRandomData(count) {
                 "Küme Yapı Mı?": Math.random() < 0.5 ? 'Evet' : 'Hayır',
                 "Eklenti": `Eklenti ${i}`,
                 "Sanayi Sitesi": `Sanayi Sitesi ${i}`,
+                "Dağıtım Tarihi": `Dağıtım Tarihi ${i}`,
+                "Ruhsat No": Math.floor(100 + Math.random() * 900),
+                "Bitirme Tarihi": `Bitirme Tarihi ${i}`,
+                "Ruhsat Ret Tarihi": `Ruhsat Ret Tarihi ${i}`,
+                "Ruhsat Ret Nedeni": `Ruhsat Ret Nedeni ${i}`
             },
             "Yapı Bilgileri": {
                 "Taşıyıcı Sistem": `Taşıyıcı Sistem ${i}`,

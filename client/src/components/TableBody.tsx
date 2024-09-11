@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLayerGroup, faBarsStaggered, faCalendarDays, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { useDispatch } from 'react-redux';
+import { openPopup } from '../features/popup/YibfGosterSlice';
 
 interface TableBodyProps {
   data: any[];
@@ -13,33 +15,52 @@ interface TableBodyProps {
 }
 
 const SettingsOptionsClass = "w-4 h-4 inline-block";
-const filterOptions = [
-  { text: 'YİBF Göster', value: 'not_contains', icon: <FontAwesomeIcon icon={faBarsStaggered} className={SettingsOptionsClass} /> },
-  { text: 'İşlem Tarihçesi', value: 'starts_with', icon: <FontAwesomeIcon icon={faCalendarDays} className={SettingsOptionsClass} /> },
-  { text: 'Sorun Göster', value: 'ends_with', icon: <FontAwesomeIcon icon={faTriangleExclamation} className={SettingsOptionsClass} /> }
+const rowOptions = [
+  { text: 'YİBF Göster', value: 'show_yibf', icon: <FontAwesomeIcon icon={faBarsStaggered} className={SettingsOptionsClass} /> },
+  { text: 'İşlem Tarihçesi', value: 'row_logging', icon: <FontAwesomeIcon icon={faCalendarDays} className={SettingsOptionsClass} /> },
+  { text: 'Sorun Göster', value: 'show_error', icon: <FontAwesomeIcon icon={faTriangleExclamation} className={SettingsOptionsClass} /> }
 ];
 
 // Varsayılan bir ikon tanımlıyoruz
 const defaultIcon = <FontAwesomeIcon icon={faLayerGroup} className={SettingsOptionsClass} />;
 
-const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, toggleRowExpansion, columnWidths, visibleHeaders, visibleHeadersCount }) => {
-  const [selectedFilter, setSelectedFilter] = useState<Record<string, { type: string }>>({});
-  const [dropdowns, setDropdowns] = useState<Record<string, boolean>>({}); // Dropdown durumlarını yönetmek için
+const TableBody: React.FC<TableBodyProps> = ({
+  data, headers, expandedRows, toggleRowExpansion, columnWidths, visibleHeaders, visibleHeadersCount
+}) => {
+  const [selectedFilter] = useState<Record<string, { type: string }>>({});
+  const [dropdowns, setDropdowns] = useState<Record<string, boolean>>({});
+  const dispatch = useDispatch();
+  
+  // Dropdown referansları
+  const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Dışa tıklama kontrolü
+  const handleClickOutside = (event: MouseEvent) => {
+    const target = event.target as Node;
+    // Eğer tıklanan yer dropdown'ların içi değilse kapat
+    if (!Object.values(dropdownRefs.current).some(ref => ref && ref.contains(target))) {
+      setDropdowns({});
+    }
+  };
+
+  useEffect(() => {
+    // mouse'un tıklama olaylarını inceler.
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // Dropdown açma-kapama fonksiyonu
   const toggleDropdown = (header: string) => {
     setDropdowns(prev => ({ ...prev, [header]: !prev[header] }));
   };
 
-  const handleFilterChange = (header: string, option: { text: string; value: string }) => {
-    setSelectedFilter(prev => ({ ...prev, [header]: { type: option.value } }));
-    toggleDropdown(header); // Dropdown'ı kapat
-  };
-
-  const getSelectedIcon = (header: string) => {
-    const selectedType = selectedFilter[header]?.type;
-    const selectedOption = filterOptions.find(option => option.value === selectedType);
-    return selectedOption ? selectedOption.icon : defaultIcon; // Eğer bir filtre seçilmemişse default icon gösterilir
+  const handleSettingsChange = (row: any[], option: { text: string, value: string }, header: string) => {
+    if (option.value === "show_yibf") {
+      dispatch(openPopup(row));
+    }
+    toggleDropdown(header);
   };
 
   function getValueForHeader(json: any, header: string) {
@@ -47,13 +68,19 @@ const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, togg
     let value = "";
     for (const section in json) {
       
-        if (json[section][header] !== undefined) {
-            value = json[section][header];
-            break;
-        }
+      if (json[section][header] !== undefined) {
+        value = json[section][header];
+        break;
+      }
     }
     return value;
-}
+  }
+
+  const setSelectProccessPopup = (header: string) => {
+    const selectedType = selectedFilter[header]?.type;
+    const selectedOption = rowOptions.find(option => option.value === selectedType);
+    return selectedOption ? selectedOption.icon : defaultIcon;
+  };
 
   return (
     <tbody>
@@ -72,12 +99,20 @@ const TableBody: React.FC<TableBodyProps> = ({ data, headers, expandedRows, togg
                   className="text-gray-600 hover:text-gray-800"
                   onClick={() => toggleDropdown(headers[rowIndex])} // header indexine göre açılır
                 >
-                  {getSelectedIcon(headers[rowIndex])}
+                  {setSelectProccessPopup(headers[rowIndex])}
                 </button>
                 {dropdowns[headers[rowIndex]] && (
-                  <div className="absolute bg-white shadow-md p-2">
-                    {filterOptions.map((option, idx) => (
-                      <div key={idx} className="p-1 hover:bg-gray-200 cursor-pointer text-left" onClick={() => handleFilterChange(headers[rowIndex], option)}>
+                  <div
+                    ref={el => dropdownRefs.current[headers[rowIndex]] = el}
+                    // tıklanan noktanın dropdown olduğunu hafızaya alır
+                    className="absolute bg-white shadow-md p-2 mt-2"
+                  >
+                    {rowOptions.map((option, idx) => (
+                      <div
+                        key={idx}
+                        className="p-1 hover:bg-gray-200 cursor-pointer text-left"
+                        onClick={() => handleSettingsChange(row, option, headers[rowIndex])}
+                      >
                         {option.icon} <span className="ml-2">{option.text}</span>
                       </div>
                     ))}

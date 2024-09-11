@@ -1,5 +1,8 @@
 {
   "devDependencies": {
     "prettier": "3.3.3"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.2.7"
   }
 }
