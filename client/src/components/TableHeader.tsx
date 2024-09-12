@@ -10,9 +10,10 @@ interface TableHeaderProps {
   localFilters: Filter[];
   handlePopupFilterChange: (header: ColumnKey, value: string, type: Filter['type']) => void;
   applyFilters: () => void;
-  onSort: (column: ColumnKey, direction: 'asc' | 'desc' | 'default') => void; // Added for sorting
-  sortColumn: ColumnKey | null; // Added for sorting
-  sortDirection: 'asc' | 'desc' | 'default'; // Added for sorting
+  // Sıralama işlemleri için
+  onSort: (column: ColumnKey, direction: 'asc' | 'desc' | 'default') => void;
+  sortColumn: ColumnKey | null;
+  sortDirection: 'asc' | 'desc' | 'default';
 }
 
 const TableHeader: React.FC<TableHeaderProps> = ({
@@ -50,7 +51,8 @@ const TableHeader: React.FC<TableHeaderProps> = ({
   };
 
   const handleFilterOptionClick = (header: ColumnKey, type: Filter['type']) => {
-    handleFilterChange(header, filterValues[header]?.value || '', type);
+    const value = filterValues[header]?.value || '';
+    handleFilterChange(header, value, type);
     setDropdownVisible(prev => ({
       ...prev,
       [header]: false
@@ -67,10 +69,6 @@ const TableHeader: React.FC<TableHeaderProps> = ({
       [header]: { value, type: prev[header]?.type || 'contains' }
     }));
     handleFilterChange(header, value, filterValues[header]?.type || 'contains');
-    setFilterValues(prev => ({
-      ...prev,
-      [header]: { type: prev[header]?.type || 'contains', value }
-    }));
   };
 
   const handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>, header: ColumnKey) => {
@@ -85,7 +83,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
         [header]: { type: 'contains', value: '' }
       }));
     }
-  }, [filterValues, handleFilterChange, applyFilters]);
+  }, [applyFilters]);
 
   const toggleDropdown = (header: ColumnKey) => {
     setDropdownVisible(prev => ({
@@ -108,24 +106,75 @@ const TableHeader: React.FC<TableHeaderProps> = ({
     { text: 'Eşittir', value: 'equals' as Filter['type'], icon: <FontAwesomeIcon icon={faEquals} className={filterOptionsClass} /> },
     { text: 'Eşit değil', value: 'not_equals' as Filter['type'], icon: <FontAwesomeIcon icon={faNotEqual} className={filterOptionsClass} /> },
   ];
-  
+
+  const workStateOptions = [
+    'Tümü',
+    'Ön Kayıt',
+    'İdare Onayı Bekleyen (Dağıtım)',
+    'Dağıtım Bekleyen',
+    'Ruhsat Başvuru Bekleyen',
+    'Ruhsat Bekleyen',
+    'Güncel',
+    'Küme Onayı Bekleyen',
+    'Ruhsat Redli',
+    'Ruhsat Redli (Ceza Sonucu)',
+    'Ruhsat Redli (Belge Geri Alınma)',
+    'Fesihli Tespitsiz',
+    'Fesihli Tespitsiz (Ceza Sebebiyle)',
+    'Fesihli Tespitsiz (Belge Geri Alınma)',
+    'Fesihli Tespitsiz (YİAM)',
+    'Fesihli Tespitli',
+    'Devir Başvurusu Bekleyen (Fesihli)',
+    'Devir Onayı Bekleyen (Fesihli)',
+    'Dağıtım Bekleyen (Fesihli)',
+    'Veri Aktarımı Bekleyen (Fesihli)',
+    'Devir Başvurusu Bekleyen (Kısmi)',
+    'Devir Onayı Bekleyen (Kısmi)',
+    'Dağıtım Bekleyen (Kısmi)',
+    'Yanan Yıkılan',
+    'Ruhsat İptali',
+    'YİBF İptal',
+    'Kısmi Bitmiş',
+    'Bitmiş',
+    'Migrasyon Ham',
+    'Migrasyon Ham Ruhsat',
+    'Migrasyon İşlenmiş',
+    'Migrasyon Fesihli Eksik Müellif',
+    'Migrasyon Fesihli Eksik Ruhsat',
+    'Güçlendirme İmalatı Başvuru Bekleyen',
+    'Güçlendirme İmalatı Onay Bekleyen',
+    'Güçlendirme İptal'
+  ];
+
   const getSelectedIcon = (header: string) => {
     const selectedType = selectedFilter[header]?.type;
-    const selectedOption = filterOptions.find(option => option.text.toLowerCase().replace(' ', '_') === selectedType);
+    const selectedOption = filterOptions.find(option => option.value === selectedType);
     return selectedOption ? selectedOption.icon : <FontAwesomeIcon icon={faSearch} className="w-3 h-3 inline-block" />;
   };
+
+  const setSelectedSelectList = (header: ColumnKey, value: string) => {
+    setInputValues(prev => ({
+      ...prev,
+      [header]: value
+    }));
+    handleFilterChange(header, value, 'contains'); // Set filter type to 'equals' for select options
+    setDropdownVisible(prev => ({
+      ...prev,
+      [header]: false
+    }));
+    applyFilters(); // Apply filters after setting the value
+  }
 
   return (
     <thead>
       <tr className="bg-gray-200 border-b">
-      <th
-            colSpan={2}
-            key="İşlemler"
-            className={'w-[40px] text-center text-gray-600 font-semibold text-sm'}
-          >
-            İşlem
-          </th>
-
+        <th
+          colSpan={2}
+          key="İşlemler"
+          className={'w-[40px] text-center text-gray-600 font-semibold text-sm'}
+        >
+          İşlem
+        </th>
         {headers.map((header, index) => (
           visibleHeaders.includes(header) && (
             <th
@@ -172,14 +221,29 @@ const TableHeader: React.FC<TableHeaderProps> = ({
                     </ul>
                   </div>
                 )}
-                <input
-                  type="text"
-                  placeholder="Ara"
-                  className="w-full h-8 px-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:border-blue-500"
-                  value={inputValues[header] || ''}
-                  onChange={(e) => handleInputChange(header, e.target.value)}
-                  onKeyDown={(e) => handleKeyPress(e, header)}
-                />
+                {/* 'Durum' başlığı için ListBox ve diğerleri için input */}
+                {header === 'Durum' ? (
+                  <select
+                    className="w-full h-8 px-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:border-blue-500"
+                    value={inputValues[header] || ''}
+                    onChange={(e) => setSelectedSelectList(header, e.target.value)}
+                  >
+                    {workStateOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    placeholder="Ara"
+                    className="w-full h-8 px-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:border-blue-500"
+                    value={inputValues[header] || ''}
+                    onChange={(e) => handleInputChange(header, e.target.value)}
+                    onKeyDown={(e) => handleKeyPress(e, header)}
+                  />
+                )}
               </div>
             </th>
           )
