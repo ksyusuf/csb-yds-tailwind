@@ -52,7 +52,6 @@ const App: React.FC = () => {
       <h1 className="text-2xl font-bold mb-4">Yapı Denetim Sistemi</h1>
       <Table
             data={data}
-            headers={headers}
             onFilterChange={setFilters}
             onSorting={setSorting} />
       <Pagination

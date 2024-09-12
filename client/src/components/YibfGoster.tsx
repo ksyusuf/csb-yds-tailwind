@@ -6,10 +6,10 @@ import { RootState } from '../store/store';
 const KEYS_TO_DISPLAY = {
   "Ana Bilgiler": [
     "YİBF No",
-    "Yapı Denetim",
+    "Yapı Denetim Kuruluşu",
     "Yapı Denetim Adres",
     "Yapı Denetim Telefon",
-    "İdare",
+    "İlgili İdare",
     "İl",
     "Durum",
     "İş Başlık",
@@ -29,9 +29,9 @@ const KEYS_TO_DISPLAY = {
     "Yapı Sınıfı",
     "Kat Adet",
     "Kısmi İnşaat",
-    "Yapı Toplam Alan (m2)",
-    "Yapı İnşaat Alan (m2)",
-    "Kalan Alan (m2)",
+    "Yapı Toplam Alan (m²)",
+    "Yapı İnşaat Alan (m²)",
+    "Kalan Alan (m²)",
     "Mahalle",
     "Yapı Adresi",
     "Cadde Sokak",
@@ -100,7 +100,7 @@ function Popup() {
       </div>
     );
   }
-
+  {console.log(dataRow)}
   // Veriyi filtrele. yibf görüntüleme kısmında görüntülenecek özelliklere göre filtrelenir.
   const filteredData = Object.entries(KEYS_TO_DISPLAY).reduce((acc, [section, keys]) => {
     const sectionData = dataRow[section as keyof typeof dataRow];
