@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import Table from './components/Table';
 import { Filter, ColumnKey } from './types'; // Tür tanım dosyasından içe aktar
 import Pagination from './components/Pagination';
+import { Provider } from 'react-redux';
+import { store } from './store/store';
+import YibfGoster from './components/YibfGoster';
 
 const App: React.FC = () => {
   const [data, setData] = useState<any[]>([]);
@@ -44,11 +47,11 @@ const App: React.FC = () => {
   };
 
   return (
+    <Provider store={store}>
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Yapı Denetim Sistemi</h1>
       <Table
             data={data}
-            headers={headers}
             onFilterChange={setFilters}
             onSorting={setSorting} />
       <Pagination
@@ -59,7 +62,9 @@ const App: React.FC = () => {
             onPageChange={setCurrentPage}
             onItemsPerPageChange={setItemsPerPage}
             />
+      <YibfGoster />
     </div>
+    </Provider>
   );
 };
 

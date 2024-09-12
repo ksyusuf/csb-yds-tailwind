@@ -7,47 +7,6 @@ const port = 3001;
 app.use(cors());
 app.use(express.json()); // JSON verileri işlemek için
 
-// Rasgele veri oluşturma fonksiyonu
-function generateRandomDataforColumn(count) {
-    let data = [];
-    const cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Gaziantep', 'Mersin', 'Kayseri'];
-    
-    for (let i = 1; i <= count; i++) {
-        let userData = {
-            /// HEADERS İÇERİSİNDEKİ OLMAYAN ELEMANLARI JSON İÇERİSİNE EKLE.
-            /// BU ŞEKİLDE NOSQL YAPISI KURACAĞIMIZ ZAMAN HER ŞANTİYENİN BİLGİSİ ELİMİZDE OLMUŞ OLUR.
-            "YİBF No": Math.floor(10000000 + Math.random() * 9000), // 8 haneli sayı
-            "İl": cities[Math.floor(Math.random() * cities.length)],
-            "İlgili İdare": `İlgili İdareili ili ${i}`,
-            "Ada": Math.floor(1000 + Math.random() * 9000), // 4 haneli sayı
-            "Parsel": Math.floor(10 + Math.random() * 90), // 2 haneli sayı
-            "İş Başlık": `İş Başlık ${i}+${i}+${i}`,
-            "Yapı Denetim Kuruluşu": `Yapı Denetim Kuruluşu ${i}`,
-            "İşin Durumu": `İşin Durumu ${i}`,
-            "Kısmi": `Kısmi ${i}`,
-            "Seviye": Math.floor(Math.random() * 10) + 1,
-            "Sözleşme Tarihi": new Date(+(new Date()) - Math.floor(Math.random()*10000000000)).toISOString().split('T')[0], // Rastgele tarih
-            "Kalan Alan (m²)": Math.floor(Math.random() * 10000) + 1000,
-            "Yapı İnşaat Alanı (m²)": Math.floor(Math.random() * 5000) + 500,
-            "İlçe": `İlçe ${i}`,
-            "Mahalle/Köy": `Mahalle/Köy ${i}`,
-            "Birim Fiyat": (Math.random() * 1000 + 100).toFixed(2), // Ondalıklı fiyat
-            "BKS Referans No": `BKS Referans No ${i}`,
-            "Ruhsat Tarihi": new Date(+(new Date()) - Math.floor(Math.random()*10000000000)).toISOString().split('T')[0], // Rastgele tarih
-            "Yapı Sınıfı": `Yapı Sınıfı ${i}`,
-            "Yapı Toplam Alanı (m²)": Math.floor(Math.random() * 8000) + 2000,
-            "Küme Yapı Mı?": Math.random() < 0.5 ? 'Evet' : 'Hayır',
-            "Eklenti": `Eklenti ${i}`,
-            "Sanayi Sitesi": `Sanayi Sitesi ${i}`,
-            "Güçlendirme": `Güçlendirme ${i}`,
-            "Güçlendirme (Ruhsat)": `Güçlendirme (Ruhsat) ${i}`,
-            "GES": Math.random() < 0.3 ? 'Evet' : 'Hayır'
-        };
-
-        data.push(userData);
-    }
-    return data;
-}
 
 function generateRandomData(count) {
     const cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Gaziantep', 'Mersin', 'Kayseri'];
@@ -68,28 +27,36 @@ function generateRandomData(count) {
         let userData = {
             "Ana Bilgiler": {
                 "YİBF No": Math.floor(10000000 + Math.random() * 9000),
-                "İl": cities[Math.floor(Math.random() * cities.length)],
-                "İlgili İdare": `İlgili İdareili ili  ${i}`,
-                "Ada": Math.floor(1000 + Math.random() * 9000),
-                "Parsel": Math.floor(10 + Math.random() * 90),
-                "İş Başlık": `İş Başlık ${i}+${i}+${i}`,
                 "Yapı Denetim Kuruluşu": `Yapı Denetim Kuruluşu ${i}`,
-                "İşin Durumu": `İşin Durumu ${i}`,
-                "Kısmi": `Kısmi ${i}`,
-                "Seviye": Math.floor(Math.random() * 10) + 1,
+                "Yapı Denetim Adres": `Yapı Denetim Adres ${i}`,
+                "Yapı Denetim Telefon": `0${Math.floor(Math.random() * 9000000000 + 1000000000)}`,
+                "İlgili İdare": `İlgili İdareili ili  ${i}`,
+                "İl": cities[Math.floor(Math.random() * cities.length)],
+                "Durum": `İşin Durumu ${i}`,
+                "İş Başlık": `İş Başlık ${i}+${i}+${i}`,
                 "Sözleşme Tarihi": `Sözleşme Tarihi ${i}`,
+                "Dağıtım Tarihi": `Dağıtım Tarihi ${i}`,
+                "Ruhsat Tarihi": `Ruhsat Tarihi ${i}`,
+                "Ruhsat No": Math.floor(100 + Math.random() * 900),
+                "Bitirme Tarihi": `Bitirme Tarihi ${i}`,
+                "Ruhsat Ret Tarihi": `Ruhsat Ret Tarihi ${i}`,
+                "Ruhsat Ret Nedeni": `Ruhsat Ret Nedeni ${i}`,
+                "BKS Referans No": `BKS Referans No ${i}`,
+                "Sanayii Sitesi": Math.random() >= 0.5 ? 'Evet' : 'Hayır',
+                // ------                
+                "Kısmi": Math.random() >= 0.5 ? 'Evet' : 'Hayır',
+                "Seviye": Math.floor(Math.random() * 10) + 1,
                 "Kalan Alan (m²)": Math.floor(Math.random() * 10000) + 1000,
                 "Yapı İnşaat Alanı (m²)": Math.floor(Math.random() * 5000) + 500,
                 "İlçe": `İlçe ${i}`,
                 "Mahalle/Köy": `Mahalle/Köy ${i}`,
                 "Birim Fiyat": Math.random() * 1000 + 100,
-                "BKS Referans No": `BKS Referans No ${i}`,
-                "Ruhsat Tarihi": `Ruhsat Tarihi ${i}`,
                 "Yapı Sınıfı": `Yapı Sınıfı ${i}`,
-                "Yapı Toplam Alanı (m²)": Math.floor(Math.random() * 8000) + 2000,
                 "Küme Yapı Mı?": Math.random() < 0.5 ? 'Evet' : 'Hayır',
-                "Eklenti": `Eklenti ${i}`,
-                "Sanayi Sitesi": `Sanayi Sitesi ${i}`,
+                "Eklenti": Math.random() < 0.5 ? 'Evet' : 'Hayır',
+                "Güçlendirme": `Güçlendirme ${i}`,
+                "Güçlendirme (Ruhsat)": `Güçlendirme (Ruhsat) ${i}`,
+                "GES": Math.random() >= 0.5 ? 'Evet' : 'Hayır'
             },
             "Yapı Bilgileri": {
                 "Taşıyıcı Sistem": `Taşıyıcı Sistem ${i}`,
@@ -139,10 +106,7 @@ function generateRandomData(count) {
                 "Tesisatlar": installations[Math.floor(Math.random() * installations.length)],
                 "Ortak Kullanım Alanları": commonAreas[Math.floor(Math.random() * commonAreas.length)],
                 "Duvar Dolgu Maddesi": wallMaterials[Math.floor(Math.random() * wallMaterials.length)],
-                "Döşeme": floorTypes[Math.floor(Math.random() * floorTypes.length)],
-                "Güçlendirme": `Güçlendirme ${i}`,
-                "Güçlendirme (Ruhsat)": `Güçlendirme (Ruhsat) ${i}`,
-                "GES": Math.random() < 0.3 ? 'Evet' : 'Hayır'
+                "Döşeme": floorTypes[Math.floor(Math.random() * floorTypes.length)]
             }
         };
         data.push(userData);
@@ -169,7 +133,6 @@ function generateRandomData(count) {
         return null;
     }
 
-const dataforColumn = generateRandomDataforColumn(65);
 const data = generateRandomData(65);
 
 // Filtreleme işlemi için veri sağlayan endpoint
@@ -259,12 +222,8 @@ app.get('/api/data', (req, res) => {
     
     filteredSortedSlicedData = filteredSortedData.slice(startIndex, endIndex);
 
-    // Başlıkları belirle
-    const headers = Object.keys(dataforColumn[0] || {});
-    
     // Yanıtı gönder
     res.json({
-        headers: headers,
         data: filteredSortedSlicedData,
         // toplam sayfa sayısı için dilimlenmeden önce total data sayısı lazım
         total: filteredData.length

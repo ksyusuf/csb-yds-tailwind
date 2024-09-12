@@ -8,10 +8,39 @@ import { Filter, ColumnKey } from '../types';
 
 interface TableProps {
   data: any[];
-  headers: ColumnKey[];
   onFilterChange: (filters: Filter[]) => void;
   onSorting: (column: ColumnKey, direction: 'asc' | 'desc' | 'default') => void;
 }
+
+
+export const headers: ColumnKey[] = [
+  "YİBF No",
+  "İl",
+  "İlgili İdare",
+  "Ada",
+  "Parsel",
+  "İş Başlık",
+  "Yapı Denetim Kuruluşu",
+  "Durum",
+  "Kısmi",
+  "Seviye",
+  "Sözleşme Tarihi",
+  "Kalan Alan (m²)",
+  "Yapı İnşaat Alanı (m²)",
+  "İlçe",
+  "Mahalle/Köy",
+  "Birim Fiyat",
+  "BKS Referans No" ,
+  "Ruhsat Tarihi",
+  "Yapı Sınıfı",
+  "Yapı Toplam Alan (m²)",
+  "Küme Yapı Mı?",
+  "Eklenti",
+  "Sanayii Sitesi",
+  "Güçlendirme",
+  "Güçlendirme (Ruhsat)",
+  "GES"
+]
 
 const columnWidths = {
   "YİBF No": "w-[80px]",
@@ -21,7 +50,7 @@ const columnWidths = {
   "Parsel": "w-[60px]",
   "İş Başlık": "w-[150px]",
   "Yapı Denetim Kuruluşu": "w-[170px]",
-  "İşin Durumu": "w-[110px]",
+  "Durum": "w-[110px]",
   "Kısmi": "w-[80px]",
   "Seviye": "w-[60px]",
   "Sözleşme Tarihi": "w-[120px]",
@@ -36,13 +65,13 @@ const columnWidths = {
   "Yapı Toplam Alanı (m²)": "w-[150px]",
   "Küme Yapı Mı?": "w-[80px]",
   "Eklenti": "w-[150px]",
-  "Sanayi Sitesi": "w-[150px]",
+  "Sanayii Sitesi": "w-[150px]",
   "Güçlendirme": "w-[150px]",
   "Güçlendirme (Ruhsat)": "w-[150px]",
   "GES": "w-[80px]"
 };
 
-const Table: React.FC<TableProps> = ({ data, headers, onFilterChange, onSorting }) => {
+const Table: React.FC<TableProps> = ({ data, onFilterChange, onSorting }) => {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
   const [sortColumn, setSortColumn] = useState<ColumnKey | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | 'default'>('asc');
