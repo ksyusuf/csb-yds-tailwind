@@ -10,6 +10,7 @@ interface TableHeaderProps {
   localFilters: Filter[];
   handlePopupFilterChange: (header: ColumnKey, value: string, type: Filter['type']) => void;
   applyFilters: () => void;
+  AddSelectListItemFilter: (header: ColumnKey, value: string, type: Filter['type']) => void;
   // Sıralama işlemleri için
   onSort: (column: ColumnKey, direction: 'asc' | 'desc' | 'default') => void;
   sortColumn: ColumnKey | null;
@@ -23,6 +24,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
   visibleHeaders,
   handlePopupFilterChange,
   applyFilters,
+  AddSelectListItemFilter,
   onSort,
   sortColumn,
   sortDirection
@@ -52,6 +54,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
 
   const handleFilterOptionClick = (header: ColumnKey, type: Filter['type']) => {
     const value = filterValues[header]?.value || '';
+    console.log(value)
     handleFilterChange(header, value, type);
     setDropdownVisible(prev => ({
       ...prev,
@@ -146,24 +149,22 @@ const TableHeader: React.FC<TableHeaderProps> = ({
     'Güçlendirme İptal'
   ];
 
-  const getSelectedIcon = (header: string) => {
+  const getSelectedIcon = (header: ColumnKey) => {
     const selectedType = selectedFilter[header]?.type;
     const selectedOption = filterOptions.find(option => option.value === selectedType);
     return selectedOption ? selectedOption.icon : <FontAwesomeIcon icon={faSearch} className="w-3 h-3 inline-block" />;
   };
 
   const setSelectedSelectList = (header: ColumnKey, value: string) => {
+    // ayrı bir prop olarak bu filtreyi göndermeyi tercih ediyorum.
+    // bu kontrolü filterPop-up için de yapmak iyi olabilir.
+    AddSelectListItemFilter(header, value, 'equals' as Filter['type'])
+    // alttaki ile, aktif olarak hangi filtrenin seçildiğini input list input içerisinde görüyorum.
     setInputValues(prev => ({
       ...prev,
       [header]: value
     }));
-    handleFilterChange(header, value, 'contains'); // Set filter type to 'equals' for select options
-    setDropdownVisible(prev => ({
-      ...prev,
-      [header]: false
-    }));
-    applyFilters(); // Apply filters after setting the value
-  }
+  };
 
   return (
     <thead>
