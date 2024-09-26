@@ -60,6 +60,7 @@ const TableBody: React.FC<TableBodyProps> = ({
     if (option.value === "show_yibf") {
       dispatch(openPopup(row));
     }
+    // buraya diğer işlemler de eklenecek.
     toggleDropdown(header);
   };
 
@@ -105,7 +106,7 @@ const TableBody: React.FC<TableBodyProps> = ({
                   <div
                     ref={el => dropdownRefs.current[headers[rowIndex]] = el}
                     // tıklanan noktanın dropdown olduğunu hafızaya alır
-                    className="absolute bg-white shadow-md p-2 mt-2"
+                    className="absolute bg-white shadow-md p-2 mt-2 bg-white border border-gray-300 rounded shadow-lg"
                   >
                     {rowOptions.map((option, idx) => (
                       <div

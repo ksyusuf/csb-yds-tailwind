@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faTimes, faArrowRight, faArrowLeft, faEquals, faNotEqual } from '@fortawesome/free-solid-svg-icons';
 import { Filter, ColumnKey } from '../types';
@@ -54,13 +54,41 @@ const TableHeader: React.FC<TableHeaderProps> = ({
 
   const handleFilterOptionClick = (header: ColumnKey, type: Filter['type']) => {
     const value = filterValues[header]?.value || '';
-    console.log(value)
     handleFilterChange(header, value, type);
-    setDropdownVisible(prev => ({
-      ...prev,
+    setDropdownVisible({
       [header]: false
-    }));
+    });
+    setSelectedFilter({
+      [header]: { value, type: type || 'contains' }
+    });
+    console.log(filterValues[header])
+    if (value !== ''){
+      AddSelectListItemFilter(header, value, type)
+    }
+    // console.log(selectedFilter)
+    // bunu yazdırınca bir önceki filtre tipini yazıyor konsola. fakat çalışırken
+    // fakat çalışırken doğru filtreleme türünü alıyor.
+    // TODO: hangi sütunlar ListFilter şekline olacak ona göre bir liste oluştur ver.
   };
+
+  // Dropdown referansları
+  const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const dropdownButtonRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  // Dışa tıklama kontrolü
+  const handleClickOutside = (event: MouseEvent) => {
+    const target = event.target as Node;
+    // Eğer tıklanan yer dropdown'ların içi değilse kapat
+    if (!Object.values(dropdownRefs.current).some(ref => ref && ref.contains(target))) {
+      setDropdownVisible({});
+    }
+  };
+  useEffect(() => {
+    // mouse'un tıklama olaylarını inceler.
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleInputChange = (header: ColumnKey, value: string) => {
     setInputValues(prev => ({
@@ -100,7 +128,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
     onSort(column, direction);
   };
 
-  const filterOptionsClass = "w-3 h-3 inline-block mr-2";
+  const filterOptionsClass = "w-3 h-3 inline-block";
   const filterOptions = [
     { text: 'İçeren', value: 'contains' as Filter['type'], icon: <FontAwesomeIcon icon={faSearch} className={filterOptionsClass} /> },
     { text: 'İçermeyen', value: 'not_contains' as Filter['type'], icon: <FontAwesomeIcon icon={faTimes} className={filterOptionsClass} /> },
@@ -110,6 +138,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
     { text: 'Eşit değil', value: 'not_equals' as Filter['type'], icon: <FontAwesomeIcon icon={faNotEqual} className={filterOptionsClass} /> },
   ];
 
+  // bu liste içeriği, sunucu tarafındaki içerik ile örtüşmelidir. henüz dinamiklik yok.
   const workStateOptions = [
     'Tümü',
     'Ön Kayıt',
@@ -164,6 +193,13 @@ const TableHeader: React.FC<TableHeaderProps> = ({
       ...prev,
       [header]: value
     }));
+    // alttakini koymamın sebebi, listeden filtre seçtikten sonra filtre tipini değiştirdiğimde
+    // aynı içeriğin filtre türünü değiştirmek.
+    // bu sadece listFilter tipindeki filtrelerde olacak. çalıştı. :like:
+    setFilterValues(prev => ({
+      ...prev,
+      [header]: { type: 'contains', value: value }
+    }));
   };
 
   return (
@@ -207,7 +243,12 @@ const TableHeader: React.FC<TableHeaderProps> = ({
                   {getSelectedIcon(header)}
                 </button>
                 {dropdownVisible[header] && (
-                  <div className="absolute top-full text-left w-full left-0 mt-1 bg-white border border-gray-300 rounded shadow-lg">
+                  // TODO: açılan dropdown'ı table üzerinde yap. 1-2 satır olduğunda dropdown tablonun
+                  // içerisinde alt kısmı görünmüyor. scroll yaparak erişiliyor. ertelendi.
+                  <div className="absolute top-full text-left mt-1 bg-white border border-gray-300 rounded shadow-lg"
+                  ref={el => dropdownRefs.current[header] = el}
+                  // tıklanan noktanın dropdown olduğunu hafızaya alır
+                    >
                     <ul className="list-none p-2 m-0">
                       {filterOptions.map((option) => (
                         <li
@@ -215,8 +256,10 @@ const TableHeader: React.FC<TableHeaderProps> = ({
                           className="p-1 hover:bg-gray-200 cursor-pointer text-sm flex items-center"
                           onClick={() => handleFilterOptionClick(header, option.value)}
                         >
-                          {option.icon}
-                          {option.text}
+                          <div>{option.icon}</div>
+                          <div className='ml-2'>{option.text}</div>
+                          
+                          
                         </li>
                       ))}
                     </ul>
