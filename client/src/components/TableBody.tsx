@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLayerGroup, faBarsStaggered, faCalendarDays, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { useDispatch } from 'react-redux';
 import { openPopup } from '../features/popup/YibfGosterSlice';
+import { openIslemGecmisiPopup } from '../features/popup/IslemGecmisiSlice';
 
 interface TableBodyProps {
   data: any[];
@@ -59,6 +60,11 @@ const TableBody: React.FC<TableBodyProps> = ({
   const handleSettingsChange = (row: any[], option: { text: string, value: string }, header: string) => {
     if (option.value === "show_yibf") {
       dispatch(openPopup(row));
+    }else if (option.value === 'row_logging'){
+      // gelen satır bilgisinde YİBF No'ya erişebilmek için tür dönüşümü yapıp öyle erişiyorum.
+      const rowJSON = row as Record<string, any>; // İlk öğeyi nesne olarak alıyoruz
+      const rowYibfNo = rowJSON['Ana Bilgiler']['YİBF No'];
+      dispatch(openIslemGecmisiPopup(rowYibfNo));
     }
     // buraya diğer işlemler de eklenecek.
     toggleDropdown(header);

@@ -66,8 +66,8 @@ const KEYS_TO_DISPLAY = {
 function Popup() {
   const dispatch = useDispatch();
   const { isOpen, dataRow } = useSelector((state: RootState) => ({
-    isOpen: state.popup.isOpen,
-    dataRow: state.popup.dataRow,
+    isOpen: state.YibfGosterPopup.isOpen,
+    dataRow: state.YibfGosterPopup.dataRow,
   }));
 
   if (!isOpen) return null;
@@ -100,7 +100,6 @@ function Popup() {
       </div>
     );
   }
-  {console.log(dataRow)}
   // Veriyi filtrele. yibf görüntüleme kısmında görüntülenecek özelliklere göre filtrelenir.
   const filteredData = Object.entries(KEYS_TO_DISPLAY).reduce((acc, [section, keys]) => {
     const sectionData = dataRow[section as keyof typeof dataRow];

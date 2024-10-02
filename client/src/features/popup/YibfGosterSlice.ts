@@ -12,7 +12,7 @@ const initialState: PopupState = {
 };
 
 export const popupSlice = createSlice({
-  name: 'popup',
+  name: 'YibfGosterPopup',
   initialState,
   reducers: {
     openPopup: (state, action: PayloadAction<any[]>) => {

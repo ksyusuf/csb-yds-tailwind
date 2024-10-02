@@ -150,23 +150,23 @@ function generateRandomData(count) {
     return data;
 }
 
-    // Döngü ile ilgili json içerisindeki tüm key'leri arar.
-    function findNestedValue(obj, key) {
-        /// bu fonksiyon, gelen json verisinin içerisindeki tüm keylerde arama yapar.
-        /// yani bir json geldi ve bunun iç içe bir yapısı var.
-        /// ben bunun içerisindeki tüm keyleri gezip buluyorum
-        /// ve bu benim filtreleme yapmamı kolaylaştırıyor.
-        if (obj.hasOwnProperty(key)) {
-            return obj[key];
-        }
-        for (const k in obj) {
-            if (typeof obj[k] === 'object' && obj[k] !== null) {
-                const found = findNestedValue(obj[k], key);
-                if (found) return found;
-            }
-        }
-        return null;
+// Döngü ile ilgili json içerisindeki tüm key'leri arar.
+function findNestedValue(obj, key) {
+    /// bu fonksiyon, gelen json verisinin içerisindeki tüm keylerde arama yapar.
+    /// yani bir json geldi ve bunun iç içe bir yapısı var.
+    /// ben bunun içerisindeki tüm keyleri gezip buluyorum
+    /// ve bu benim filtreleme yapmamı kolaylaştırıyor.
+    if (obj.hasOwnProperty(key)) {
+        return obj[key];
     }
+    for (const k in obj) {
+        if (typeof obj[k] === 'object' && obj[k] !== null) {
+            const found = findNestedValue(obj[k], key);
+            if (found) return found;
+        }
+    }
+    return null;
+}
 
 const data = generateRandomData(65);
 
@@ -394,6 +394,28 @@ function generateTransactionHistory(data, transactionCount) {
         "YKE'nin YDK'dan İstifası",
         "YKE Vefatı"
     ];
+    const rastgeleIsimler = [
+        "Ali Yılmaz",
+        "Elif Demir",
+        "Mehmet Çelik",
+        "Zeynep Arslan",
+        "Emre Koç",
+        "Fatma Şahin",
+        "Oğuzhan Polat",
+        "Aylin Korkmaz",
+        "Burak Kaplan",
+        "Derya Özdemir",
+        "Canan Aydın",
+        "Serkan Kılıç",
+        "Merve Yıldız",
+        "Hüseyin Akman",
+        "Gamze Uçar",
+        "Tuna Başar",
+        "Ceren Kurt",
+        "Umut Sezer",
+        "Seda Arı",
+        "Kaan Tekin"
+      ];
 
     data.forEach(entry => {
         const yibfNo = entry["Ana Bilgiler"]["YİBF No"];
@@ -405,7 +427,7 @@ function generateTransactionHistory(data, transactionCount) {
                 "İşlem": transactionTypes[Math.floor(Math.random() * transactionTypes.length)],
                 "Denetim Elemanı": Math.random() < 0.4 ? null : `Denetim Elemanı ${Math.floor(Math.random() * 100)}`,
                 "YDK/LAB": Math.random() < 0.2 ? null : `YDK/LAB ${Math.floor(Math.random() * 100)}`,
-                "Gerçekleştiren": Math.random() < 0.05 ? null : `${Math.floor(Math.random() * 100)} Nolu kişi`
+                "Gerçekleştiren": rastgeleIsimler[Math.floor(Math.random() * rastgeleIsimler.length)]
             };
             transactionHistory.push(transactionRecord);
         }
@@ -414,11 +436,7 @@ function generateTransactionHistory(data, transactionCount) {
     return transactionHistory;
 }
 
-// Kullanım örneği
-const randomData = generateRandomData(10); // 10 ana veri
-const transactionHistory = generateTransactionHistory(randomData, 90); // Her biri için 90 işlem
-console.log(transactionHistory);
-
+const transactionHistory = generateTransactionHistory(data, 90); // Her biri için 90 işlem
 
 // Filtreleme işlemi için veri sağlayan endpoint
 app.get('/api/data', (req, res) => {
@@ -460,7 +478,6 @@ app.get('/api/data', (req, res) => {
     // sayfalama yapmadan önce gelen veriyi isteğe göre sıralayalım.
     const sortColumn = JSON.parse(req.query.sorting)['column'];
     const sortDirection = JSON.parse(req.query.sorting)['direction'];
-
     
     function findValueByKey(obj, key) {
         // bu fonksiyon, filtrelenmiş veriyi sıralarken sıralama yapılması istenen
@@ -512,6 +529,15 @@ app.get('/api/data', (req, res) => {
         data: filteredSortedSlicedData,
         // toplam sayfa sayısı için dilimlenmeden önce total data sayısı lazım
         total: filteredData.length
+    });
+});
+
+app.get('/api/data/log', (req, res) => {
+    const dataID = req.query.log;
+    const filteredData = transactionHistory.filter(item => item.YİBF_NO === Number(dataID));
+    // Yanıtı gönder
+    res.json({
+        data: filteredData
     });
 });
 

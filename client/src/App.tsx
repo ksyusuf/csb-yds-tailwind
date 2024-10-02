@@ -5,6 +5,7 @@ import Pagination from './components/Pagination';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
 import YibfGoster from './components/YibfGoster';
+import IslemGecmisi from './components/IslemGecmisi';
 
 const App: React.FC = () => {
   const [data, setData] = useState<any[]>([]);
@@ -63,6 +64,7 @@ const App: React.FC = () => {
             onItemsPerPageChange={setItemsPerPage}
             />
       <YibfGoster />
+      <IslemGecmisi />
     </div>
     </Provider>
   );
