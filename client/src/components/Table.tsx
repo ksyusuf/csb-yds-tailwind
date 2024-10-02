@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import TableHeader from './TableHeader';
 import TableBody from './TableBody';
 import FilterPopup from './FilterPopup';
@@ -83,6 +83,7 @@ const Table: React.FC<TableProps> = ({ data, onFilterChange, onSorting }) => {
     setShowFilterPopup,
     handlePopupFilterChange,
     applyFilters,
+    AddSelectListItemFilter,
     clearFilter
   } = useFilters(onFilterChange);
 
@@ -191,6 +192,7 @@ const Table: React.FC<TableProps> = ({ data, onFilterChange, onSorting }) => {
             handlePopupFilterChange={handlePopupFilterChange}
             localFilters={localFilters}
             applyFilters={applyFilters}
+            AddSelectListItemFilter={AddSelectListItemFilter}
             onSort={handleSort}
             sortColumn={sortColumn}
             sortDirection={sortDirection}

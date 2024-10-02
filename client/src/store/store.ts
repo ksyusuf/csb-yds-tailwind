@@ -1,11 +1,13 @@
 // /client/src/store/store.ts
 import { configureStore } from '@reduxjs/toolkit';
 import popupReducer from '../features/popup/YibfGosterSlice';
+import islemGecmisiReducer from '../features/popup/IslemGecmisiSlice';
 
 // Store'u yapılandırın
 export const store = configureStore({
   reducer: {
-    popup: popupReducer,
+    YibfGosterPopup: popupReducer,
+    islemGecmisiPopup: islemGecmisiReducer
     // Diğer reducer'larınızı buraya ekleyin
   },
 });
