@@ -2,12 +2,14 @@
 import { configureStore } from '@reduxjs/toolkit';
 import popupReducer from '../features/popup/YibfGosterSlice';
 import islemGecmisiReducer from '../features/popup/IslemGecmisiSlice';
+import YibfErrorsReducer from '../features/popup/YibfErrorsSlice';
 
 // Store'u yapılandırın
 export const store = configureStore({
   reducer: {
     YibfGosterPopup: popupReducer,
-    islemGecmisiPopup: islemGecmisiReducer
+    islemGecmisiPopup: islemGecmisiReducer,
+    YibfErrorsPopup: YibfErrorsReducer
     // Diğer reducer'larınızı buraya ekleyin
   },
 });

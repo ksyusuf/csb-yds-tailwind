@@ -82,7 +82,7 @@ function Popup() {
           </h2>
           <button
             onClick={() => dispatch(closePopup())}
-            className="ml-4 px-4 py-2 bg-blue-500 text-white rounded"
+            className="text-gray-800 bg-gradient-to-r from-red-200 to-pink-100 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
           >
             X
           </button>
@@ -92,7 +92,7 @@ function Popup() {
           <p>No data available</p>
           <button
             onClick={() => dispatch(closePopup())}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+            className="text-gray-800 bg-gradient-to-r from-red-200 to-pink-100 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
           >
             X
           </button>
@@ -120,17 +120,17 @@ function Popup() {
   return (
     <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-6 rounded-lg max-h-[80vh] overflow-y-auto">
-      <div className="flex justify-between items-center mb-4">
+      <header className="flex justify-between items-center mb-4 sticky top-0 bg-white z-10 shadow p-2">
         <h2 className="text-xl font-semibold">
           {filteredData["Ana Bilgiler"]["YİBF No"]} No'lu YİBF Bilgisi
         </h2>
         <button
           onClick={() => dispatch(closePopup())}
-          className="ml-4 px-4 py-2 bg-blue-500 text-white rounded"
+          className="text-gray-800 bg-gradient-to-r from-red-200 to-pink-100 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
         >
           X
         </button>
-      </div>
+      </header>
       <hr/><br/>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {Object.entries(filteredData).map(([section, details]) => (

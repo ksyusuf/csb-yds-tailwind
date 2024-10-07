@@ -4,6 +4,7 @@ import { faLayerGroup, faBarsStaggered, faCalendarDays, faTriangleExclamation } 
 import { useDispatch } from 'react-redux';
 import { openPopup } from '../features/popup/YibfGosterSlice';
 import { openIslemGecmisiPopup } from '../features/popup/IslemGecmisiSlice';
+import { openYibfErrorsPopup } from '../features/popup/YibfErrorsSlice';
 
 interface TableBodyProps {
   data: any[];
@@ -65,13 +66,18 @@ const TableBody: React.FC<TableBodyProps> = ({
       const rowJSON = row as Record<string, any>; // İlk öğeyi nesne olarak alıyoruz
       const rowYibfNo = rowJSON['Ana Bilgiler']['YİBF No'];
       dispatch(openIslemGecmisiPopup(rowYibfNo));
+    }else if (option.value === 'show_error'){
+      // gelen satır bilgisinde YİBF No'ya erişebilmek için tür dönüşümü yapıp öyle erişiyorum.
+      const rowJSON = row as Record<string, any>; // İlk öğeyi nesne olarak alıyoruz
+      const rowYibfNo = rowJSON['Ana Bilgiler']['YİBF No'];
+      dispatch(openYibfErrorsPopup(rowYibfNo));
     }
     // buraya diğer işlemler de eklenecek.
     toggleDropdown(header);
   };
 
   function getValueForHeader(json: any, header: string) {
-    // ilgili header değerinin gelen veri json içerisindeki değerini bulur getirir.
+    // gelen json içerisindeki ilgili header'ın değerinin bulur getirir.
     let value = "";
     for (const section in json) {
       
@@ -93,7 +99,7 @@ const TableBody: React.FC<TableBodyProps> = ({
     <tbody>
       {data.length === 0 ? (
         <tr className='bg-gray-50'>
-          <td colSpan={visibleHeadersCount + 1} className="py-4 text-center text-black">
+          <td colSpan={visibleHeadersCount + 2} className="py-4 text-center text-black">
             Filtrelemeye uygun veri bulunamadı
           </td>
         </tr>
@@ -101,47 +107,55 @@ const TableBody: React.FC<TableBodyProps> = ({
         data.map((row, rowIndex) => (
           <React.Fragment key={rowIndex}>
             <tr className={rowIndex % 2 === 0 ? 'bg-gray-100' : 'bg-white'}>
-            <td className='text-center'>
-                <button
-                  className="text-gray-600 hover:text-gray-800"
-                  onClick={() => toggleDropdown(headers[rowIndex])} // header indexine göre açılır
-                >
-                  {setSelectProccessPopup(headers[rowIndex])}
-                </button>
-                {dropdowns[headers[rowIndex]] && (
-                  <div
-                    ref={el => dropdownRefs.current[headers[rowIndex]] = el}
-                    // tıklanan noktanın dropdown olduğunu hafızaya alır
-                    className="absolute bg-white shadow-md p-2 mt-2 bg-white border border-gray-300 rounded shadow-lg"
-                  >
-                    {rowOptions.map((option, idx) => (
-                      <div
-                        key={idx}
-                        className="p-1 hover:bg-gray-200 cursor-pointer text-left"
-                        onClick={() => handleSettingsChange(row, option, headers[rowIndex])}
-                      >
-                        {option.icon} <span className="ml-2">{option.text}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </td>
+              {/* BURAYA SATIR YÜKSEKLİKLERİNİ SABİTLEYECEK.
+                VERİLERİ UZUN OLANLARI ... İLE KISALTACAK DÜZENLEME YAPILACAK */}
               <td className='text-center'>
-                <button
-                  type="button"
-                  className='hover:text-blue-700'
-                  onClick={() => toggleRowExpansion(rowIndex)}
-                >
-                  {expandedRows.has(rowIndex) ? '-' : '+'}
-                </button>
-              </td>
+                  <button
+                    className="text-gray-600 hover:text-gray-800"
+                    onClick={() => toggleDropdown(headers[rowIndex])} // header indexine göre açılır
+                  >
+                    {setSelectProccessPopup(headers[rowIndex])}
+                  </button>
+                  {dropdowns[headers[rowIndex]] && (
+                    <div
+                      ref={el => dropdownRefs.current[headers[rowIndex]] = el}
+                      // tıklanan noktanın dropdown olduğunu hafızaya alır
+                      className="absolute shadow-md p-2 mt-2 bg-white border border-gray-300 rounded"
+                    >
+                      {rowOptions.map((option, idx) => (
+                        <div
+                          key={idx}
+                          className="p-1 hover:bg-gray-200 cursor-pointer text-left"
+                          onClick={() => handleSettingsChange(row, option, headers[rowIndex])}
+                        >
+                          {option.icon} <span className="ml-2">{option.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </td>
+                <td className='text-center'>
+                  <button
+                    type="button"
+                    className='hover:text-blue-700'
+                    onClick={() => toggleRowExpansion(rowIndex)}
+                  >
+                    {expandedRows.has(rowIndex) ? '-' : '+'}
+                  </button>
+                </td>
+
               {headers.map((header, cellIndex) => (
-                visibleHeaders.includes(header) && ( // "no" header'ı pas geç
+                visibleHeaders.includes(header) && (
                   <td
                     key={cellIndex}
                     className={`${columnWidths[header]} p-2 text-left text-gray-600 break-words`}
+                    title={getValueForHeader(row, headers[cellIndex])} // Tam metni tooltip olarak göster
                   >
-                    {getValueForHeader(row, headers[cellIndex])}
+                    {(() => {
+                      const value = getValueForHeader(row, headers[cellIndex]);
+                      let sutun_genisligi_metin_esleme = parseInt(columnWidths[header].match(/(\d+)/)?.[0] || '0', 10)/10
+                      return value.length > sutun_genisligi_metin_esleme ? `${value.slice(0, sutun_genisligi_metin_esleme)}...` : value;
+                    })()}
                   </td>
                 )
               ))}
@@ -149,33 +163,34 @@ const TableBody: React.FC<TableBodyProps> = ({
             </tr>
             {expandedRows.has(rowIndex) && (
             <tr className="bg-gray-100">
-                <td colSpan={visibleHeadersCount+2} className="py-2 px-4">
+            <td colSpan={visibleHeadersCount + 2} className="py-2 px-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* İlk yarı */}
-                    <div className="space-y-2">
-                    {headers.slice(0, Math.ceil(headers.length / 2)).map((header, cellIndex) => (
-                        <div key={cellIndex} className="p-2 border bg-white rounded">
-                        <strong>{header}:</strong> {getValueForHeader(row, headers[cellIndex])}
-                        </div>
-                    ))}
+                    <div className="space-y-1">
+                        {headers.slice(0, Math.ceil(headers.length / 2)).map((header, cellIndex) => (
+                            <div key={cellIndex} className="p-1 border bg-white rounded text-sm">
+                                <strong>{header}:</strong> {getValueForHeader(row, headers[cellIndex])}
+                            </div>
+                        ))}
                     </div>
                     {/* İkinci yarı */}
-                    <div className="space-y-2">
-                    {headers.slice(Math.ceil(headers.length / 2)).map((header, cellIndex) => (
-                        <div key={cellIndex + Math.ceil(headers.length / 2)} className="p-2 border bg-white rounded">
-                        <strong>{header}:</strong> {getValueForHeader(row, headers[cellIndex + Math.ceil(headers.length / 2)])}
-                        </div>
-                    ))}
+                    <div className="space-y-1">
+                        {headers.slice(Math.ceil(headers.length / 2)).map((header, cellIndex) => (
+                            <div key={cellIndex + Math.ceil(headers.length / 2)} className="p-1 border bg-white rounded text-sm">
+                                <strong>{header}:</strong> {getValueForHeader(row, headers[cellIndex + Math.ceil(headers.length / 2)])}
+                            </div>
+                        ))}
                     </div>
                 </div>
-                </td>
-            </tr>
-            )}
-          </React.Fragment>
-      ))
-    )}
-  </tbody>
-);
+            </td>
+        </tr>
+        
+             )}
+           </React.Fragment>
+        ))
+      )}
+    </tbody>
+  );
 };
 
 export default TableBody;

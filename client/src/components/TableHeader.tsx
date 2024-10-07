@@ -73,7 +73,6 @@ const TableHeader: React.FC<TableHeaderProps> = ({
 
   // Dropdown referansları
   const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const dropdownButtonRefs = useRef<Record<string, HTMLDivElement | null>>({});
   // Dışa tıklama kontrolü
   const handleClickOutside = (event: MouseEvent) => {
     const target = event.target as Node;
@@ -265,29 +264,62 @@ const TableHeader: React.FC<TableHeaderProps> = ({
                     </ul>
                   </div>
                 )}
-                {/* 'Durum' başlığı için ListBox ve diğerleri için input */}
-                {header === 'Durum' ? (
-                  <select
-                    className="w-full h-8 px-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:border-blue-500"
-                    value={inputValues[header] || ''}
-                    onChange={(e) => setSelectedSelectList(header, e.target.value)}
-                  >
-                    {workStateOptions.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    type="text"
-                    placeholder="Ara"
-                    className="w-full h-8 px-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:border-blue-500"
-                    value={inputValues[header] || ''}
-                    onChange={(e) => handleInputChange(header, e.target.value)}
-                    onKeyDown={(e) => handleKeyPress(e, header)}
-                  />
-                )}
+                {/* KOŞULLU RENDERING */}
+                {(() => {
+                let sutun_genisligi_metin_esleme = parseInt(columnWidths[header].match(/(\d+)/)?.[0] || '0', 10)/10
+                if (header === 'Durum') {
+                  return (
+                    <select
+                      className="w-[72px] h-8 px-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:border-blue-500"
+                      value={inputValues[header] || ''}
+                      onChange={(e) => setSelectedSelectList(header, e.target.value)}
+                    >
+                      {workStateOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  );
+                } else if (header === 'Kısmi') {
+                  return (
+                    <select
+                      className="w-[30px] h-8 px-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:border-blue-500"
+                      value={inputValues[header] || ''}
+                      onChange={(e) => setSelectedSelectList(header, e.target.value)}
+                    >
+                      {['Tümü', 'Evet', 'Hayır'].map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  );
+                } else if (header === 'Sözleşme Tarihi') {
+                  return (
+                    <div className="flex items-center">
+                      <input
+                        type="date"
+                        className={`w-[${sutun_genisligi_metin_esleme+50}px] h-8 px-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:border-blue-500`}
+                        value={inputValues[header] || ''}
+                        onChange={(e) => setSelectedSelectList(header, e.target.value)}
+                      />
+                    </div>
+                  );
+                  
+                } else {
+                  return (
+                    <input
+                      type="text"
+                      placeholder="Ara"
+                      className="w-full h-8 px-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:border-blue-500"
+                      value={inputValues[header] || ''}
+                      onChange={(e) => handleInputChange(header, e.target.value)}
+                      onKeyDown={(e) => handleKeyPress(e, header)}
+                    />
+                  );
+                }
+              })()}
               </div>
             </th>
           )

@@ -51,11 +51,11 @@ const columnWidths = {
   "İş Başlık": "w-[150px]",
   "Yapı Denetim Kuruluşu": "w-[170px]",
   "Durum": "w-[110px]",
-  "Kısmi": "w-[80px]",
+  "Kısmi": "w-[40px]",
   "Seviye": "w-[60px]",
-  "Sözleşme Tarihi": "w-[120px]",
-  "Kalan Alan (m²)": "w-[120px]",
-  "Yapı İnşaat Alanı (m²)": "w-[120px]",
+  "Sözleşme Tarihi": "w-[100px]",
+  "Kalan Alan (m²)": "w-[70px]",
+  "Yapı İnşaat Alanı (m²)": "w-[80px]",
   "İlçe": "w-[150px]",
   "Mahalle/Köy": "w-[150px]",
   "Birim Fiyat": "w-[100px]",
@@ -112,7 +112,7 @@ const Table: React.FC<TableProps> = ({ data, onFilterChange, onSorting }) => {
     const visibleCount = Math.floor(visibleWidth / (totalWidth / headers.length));
     setVisibleHeadersCount(visibleCount);
     setVisibleHeaders(headers.slice(0, visibleCount));
-  }, [windowWidth, headers]);
+  }, [windowWidth]);
 
   const handleSort = (column: ColumnKey, direction: 'asc' | 'desc' | 'default') => {
     // eğer 3. bir durum olursa burada sütunu id ye göre ayarlayacağız bu kadar.
@@ -144,10 +144,10 @@ const Table: React.FC<TableProps> = ({ data, onFilterChange, onSorting }) => {
     <>
       <div className="mb-4">
         <button
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-          onClick={() => setShowFilterPopup(true)}
-        >
-          Filtrele
+          type="button"
+          className="text-white bg-gradient-to-br from-green-400 to-blue-600 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-2 mb-3"
+          onClick={() => setShowFilterPopup(true)}>
+            Filtrele
         </button>
       </div>
 
@@ -166,7 +166,7 @@ const Table: React.FC<TableProps> = ({ data, onFilterChange, onSorting }) => {
             {filters.map((filter, index) => (
               <span
                 key={index}
-                className={`text-gray-800 px-3 py-1 rounded flex items-center ${data.length === 0 ? 'bg-red-200' : 'bg-gray-200'}`}
+                className={`text-gray-800 px-3 py-1 border border-gray-400 rounded flex items-center ${data.length === 0 ? 'bg-red-200' : 'bg-gray-200'}`}
               >
                 <button
                   className="text-red-500 hover:text-red-700"
@@ -184,7 +184,7 @@ const Table: React.FC<TableProps> = ({ data, onFilterChange, onSorting }) => {
       </div>
 
       <div className="overflow-x-auto w-full">
-        <table className="w-full table-fixed border-collapse">
+        <table className="w-full bg-gray-400 border rounded-lg overflow-hidden">
           <TableHeader
             headers={headers}
             columnWidths={columnWidths}
