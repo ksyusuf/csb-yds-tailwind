@@ -3,24 +3,25 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface YibfErrorsPopupState {
   isOpen: boolean;
-  dataRowYibfNo: string;
+  dataRow: Record<string, any> | null;
 }
 
 const initialState: YibfErrorsPopupState = {
   isOpen: false,
-  dataRowYibfNo: ''
+  dataRow: null
 };
 
 export const YibfErrorsPopupSlice = createSlice({
   name: 'YibfErrorsPopup',
   initialState,
   reducers: {
-    openYibfErrorsPopup: (state, action: PayloadAction<string>) => {
+    openYibfErrorsPopup: (state, action: PayloadAction<Record<string, any>[]>) => {
       state.isOpen = true;
-      state.dataRowYibfNo = action.payload;
+      state.dataRow = action.payload;
     },
     closeYibfErrorsPopup: (state) => {
       state.isOpen = false;
+      state.dataRow = null;
     },
   },
 });

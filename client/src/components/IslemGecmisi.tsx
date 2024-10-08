@@ -63,9 +63,9 @@ function Popup() {
               <thead>
                 <tr>
                   <th className="border p-2 text-left bg-gray-200">İşlem Zamanı</th>
-                  <th className="border p-2 text-left bg-gray-200 w-[90px]">İşlem</th>
+                  <th className="border p-2 text-left bg-gray-200 w-[200px]">İşlem</th>
                   <th className="border p-2 text-left bg-gray-200">Denetim Elemanı</th>
-                  <th className="border p-2 text-left bg-gray-200">YDK/LAB</th>
+                  <th className="border p-2 text-left bg-gray-200 w-[120px]">YDK/LAB</th>
                   <th className="border p-2 text-left bg-gray-200">YİBF NO</th>
                   <th className="border p-2 text-left bg-gray-200">Gerçekleştiren</th>
                 </tr>
@@ -84,9 +84,9 @@ function Popup() {
                         hour12: false
                       })}
                     </td>
-                    <td className="border p-2 w-[90px]">{item["İşlem"]}</td>
+                    <td className="border p-2 w-[200px]">{item["İşlem"]}</td>
                     <td className="border p-2">{item["Denetim Elemanı"] || '-'}</td>
-                    <td className="border p-2">{item["YDK/LAB"] || '-'}</td>
+                    <td className="border p-2 w-[120px]">{item["YDK/LAB"] || '-'}</td>
                     <td className="border p-2">{item.YİBF_NO}</td>
                     <td className="border p-2">{item["Gerçekleştiren"]}</td>
                   </tr>

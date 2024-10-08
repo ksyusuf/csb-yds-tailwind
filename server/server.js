@@ -7,6 +7,51 @@ const port = 3001;
 app.use(cors());
 app.use(express.json()); // JSON verileri işlemek için
 
+function SorunUretici(SorunSayisi) {
+// sorun üretir. ve json listesi döndürür.
+// kritik sorun içeren yibflerin oranını %8 yaparak gerçekçilik artırıldı.
+    const SorunListesi = [];
+    const yibf_sorun_tipi = [
+        ["YİBF Proje İzinleri Eksik", "Kritik"],
+        ["YİBF Kalite Kontrol Belgeleri Eksik", "Normal"],
+        ["YİBF Güvenlik Ekipmanları Yetersiz", "Kritik"],
+        ["YİBF Malzeme Test Raporları Eksik", "Normal"],
+        ["YİBF Uygulama Projeleri Güncellenmemiş", "Önemli"],
+        ["YİBF İSG Eğitim Belgesi Eksik", "Kritik"],
+        ["YİBF Çevresel Etki Değerlendirmesi Eksik", "Önemli"],
+        ["YİBF Zaman Çizelgesi Uygun Değil", "Normal"],
+        ["YİBF İş Güvenliği Planı Eksik", "Kritik"]
+    ];
+    
+    
+    for (let i = 0; i < SorunSayisi; i++) {
+        let randomValue = Math.random();
+
+        // Eğer rastgele sayı 0.5'ten küçükse sorun yok
+        if (randomValue < 0.9) {
+            continue; // Hiçbir sorun eklenmiyor
+        }
+
+        let SorunKaydi;
+        if (randomValue < 0.58) { // %8 olasılıkla kritik sorun (0.5 + 0.08)
+            SorunKaydi = {
+                "Sorun Başlangıç Zamanı": new Date(Date.now() - Math.floor(Math.random() * 365 * 24 * 60 * 60 * 1000)),
+                "Sorun Adı ve Tipi": yibf_sorun_tipi[0], // Kritik sorun
+            };
+        } else {
+            // Normal sorunları %92 oranında dağıt
+            const normalSorunlar = yibf_sorun_tipi.slice(1); // Kritik olmayan sorunlar
+            SorunKaydi = {
+                "Sorun Başlangıç Zamanı": new Date(Date.now() - Math.floor(Math.random() * 365 * 24 * 60 * 60 * 1000)),
+                "Sorun Adı ve Tipi": normalSorunlar[Math.floor(Math.random() * normalSorunlar.length)],
+            };
+        }
+
+        SorunListesi.push(SorunKaydi);
+    }
+    return SorunListesi;
+}
+
 
 function generateRandomData(count) {
     const cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Gaziantep', 'Mersin', 'Kayseri'];
@@ -147,6 +192,7 @@ function generateRandomData(count) {
         let ilgili_idare_ve_ilce = istanbulBelediyeler[Math.floor(Math.random() * istanbulBelediyeler.length)]
         // ilgili ilçeye ilgili idare bakar.
         let userData = {
+            "YIBF-Errors": SorunUretici(2),
             "YIBF-Ozellik": {
                 "Yibf-Turu": ["Küme YİBF", "Eklenti YİBF", "Normal"][Math.floor(Math.random() * 3)]
             },
@@ -258,7 +304,7 @@ function findNestedValue(obj, key) {
     return null;
 }
 
-const data = generateRandomData(65);
+let data = generateRandomData(65);
 
 function generateTransactionHistory(data, transactionCount) {
     const transactionHistory = [];
@@ -551,31 +597,6 @@ function generateTransactionHistory(data, transactionCount) {
 
 const transactionHistory = generateTransactionHistory(data, 90); // Her biri için 90 işlem
 
-function SorunUretici(data, SorunSayisi) {
-    const SorunListesi = [];
-    const yibf_sorun_tipi = [
-        ["YİBF Şantiye Şefi Eksik", "Kritik"],
-        ["YİBF Makine Proje Müellif Bilgileri Eksik", "Normal"],
-        ["YİBF Elektrik Proje Müellif Bilgileri Eksik", "Normal"]
-    ];
-  
-    data.forEach(entry => {
-        const yibfNo = entry["Ana Bilgiler"]["YİBF No"];
-        
-        for (let i = 0; i < SorunSayisi; i++) {
-            const SorunKaydi = {
-                "YİBF_NO": yibfNo,
-                "Sorun Başlangıç Zamanı": new Date(Date.now() - Math.floor(Math.random() * 365 * 24 * 60 * 60 * 1000)), // Son 1 yıl içinde rastgele bir tarih
-                "Sorun Adı ve Tipi": yibf_sorun_tipi[Math.floor(Math.random() * yibf_sorun_tipi.length)],
-            };
-            SorunListesi.push(SorunKaydi);
-        }
-    });
-
-    return SorunListesi;
-}
-
-const YIBF_Sorunlari = SorunUretici(data, 2);
 
 // Filtreleme işlemi için veri sağlayan endpoint
 app.get('/api/data', (req, res) => {
@@ -694,33 +715,6 @@ app.get('/api/data/log', (req, res) => {
         total: filteredDataSorted.length
     });
 });
-
-app.get('/api/data/yibfError', (req, res) => {
-    const dataID = req.query.yibfError;
-    const filteredErrors = YIBF_Sorunlari.filter(item => item.YİBF_NO === Number(dataID));
-
-    // verileri tarihe göre yeniden eskiye sıralayalım.
-    const filteredErrorsSorted = filteredErrors.sort((a, b) => {
-        return new Date(b["Sorun Başlangıç Zamanı"]) - new Date(a["Sorun Başlangıç Zamanı"]);
-    });
-
-    // sayfalama için
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    
-    const filteredErrorsSliced = filteredErrors.slice(startIndex, endIndex);
-
-    // Yanıtı gönder
-    res.json({
-        data: filteredErrorsSliced,
-        total: filteredErrorsSorted.length
-    });
-});
-
-
-
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
