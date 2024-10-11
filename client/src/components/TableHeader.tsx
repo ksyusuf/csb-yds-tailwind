@@ -207,7 +207,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
         <th
           colSpan={2}
           key="İşlemler"
-          className={'w-[40px] text-center text-gray-600 font-semibold text-sm'}
+          className={'w-[40px] pt-2 text-center text-gray-600 font-semibold text-sm'}
         >
           İşlem
         </th>
@@ -215,7 +215,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
           visibleHeaders.includes(header) && (
             <th
               key={index}
-              className={`${columnWidths[header]} p-2 text-left text-gray-600 font-semibold break-words text-sm`}
+              className={`${columnWidths[header]} pl-2 pt-2 text-left text-gray-600 font-semibold break-words text-sm`}
             >
               <button onClick={() => handleSort(header)} className="flex items-center">
                 {header}
