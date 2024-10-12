@@ -7,6 +7,51 @@ const port = 3001;
 app.use(cors());
 app.use(express.json()); // JSON verileri işlemek için
 
+function SorunUretici(SorunSayisi) {
+// sorun üretir. ve json listesi döndürür.
+// kritik sorun içeren yibflerin oranını %8 yaparak gerçekçilik artırıldı.
+    const SorunListesi = [];
+    const yibf_sorun_tipi = [
+        ["YİBF Proje İzinleri Eksik", "Kritik"],
+        ["YİBF Kalite Kontrol Belgeleri Eksik", "Normal"],
+        ["YİBF Güvenlik Ekipmanları Yetersiz", "Kritik"],
+        ["YİBF Malzeme Test Raporları Eksik", "Normal"],
+        ["YİBF Uygulama Projeleri Güncellenmemiş", "Önemli"],
+        ["YİBF İSG Eğitim Belgesi Eksik", "Kritik"],
+        ["YİBF Çevresel Etki Değerlendirmesi Eksik", "Önemli"],
+        ["YİBF Zaman Çizelgesi Uygun Değil", "Normal"],
+        ["YİBF İş Güvenliği Planı Eksik", "Kritik"]
+    ];
+    
+    
+    for (let i = 0; i < SorunSayisi; i++) {
+        let randomValue = Math.random();
+
+        // Eğer rastgele sayı 0.5'ten küçükse sorun yok
+        if (randomValue < 0.9) {
+            continue; // Hiçbir sorun eklenmiyor
+        }
+
+        let SorunKaydi;
+        if (randomValue < 0.58) { // %8 olasılıkla kritik sorun (0.5 + 0.08)
+            SorunKaydi = {
+                "Sorun Başlangıç Zamanı": new Date(Date.now() - Math.floor(Math.random() * 365 * 24 * 60 * 60 * 1000)),
+                "Sorun Adı ve Tipi": yibf_sorun_tipi[0], // Kritik sorun
+            };
+        } else {
+            // Normal sorunları %92 oranında dağıt
+            const normalSorunlar = yibf_sorun_tipi.slice(1); // Kritik olmayan sorunlar
+            SorunKaydi = {
+                "Sorun Başlangıç Zamanı": new Date(Date.now() - Math.floor(Math.random() * 365 * 24 * 60 * 60 * 1000)),
+                "Sorun Adı ve Tipi": normalSorunlar[Math.floor(Math.random() * normalSorunlar.length)],
+            };
+        }
+
+        SorunListesi.push(SorunKaydi);
+    }
+    return SorunListesi;
+}
+
 
 function generateRandomData(count) {
     const cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Gaziantep', 'Mersin', 'Kayseri'];
@@ -20,56 +65,147 @@ function generateRandomData(count) {
     const commonAreas = ['Asansör', 'Bekçi kulübesi', 'Açık otopark', 'Kapalı otopark', 'Kapıcı dairesi', 'Kömürlük', 'Ortak depo', 'Sığınak', 'Su deposu', 'Yangın merdiveni', 'Yüzme havuzu', 'Diğer'];
     const wallMaterials = ['Briket', 'Tuğla', 'Taş', 'Ahşap', 'Kerpiç', 'Gazbeton', 'Beton blok', 'Hafif panel', 'Bims', 'Diğer'];
     const floorTypes = ['Plak kiriş', 'Mantar döşeme', 'Asmolen', 'Ahşap', 'Hazır yapı elemanı', 'Kaset Döşeme', 'Diğer'];
-    const workStateOptions = ['Ön Kayıt',
-    'İdare Onayı Bekleyen (Dağıtım)',
-    'Dağıtım Bekleyen',
-    'Ruhsat Başvuru Bekleyen',
-    'Ruhsat Bekleyen',
-    'Güncel',
-    'Küme Onayı Bekleyen',
-    'Ruhsat Redli',
-    'Ruhsat Redli (Ceza Sonucu)',
-    'Ruhsat Redli (Belge Geri Alınma)',
-    'Fesihli Tespitsiz',
-    'Fesihli Tespitsiz (Ceza Sebebiyle)',
-    'Fesihli Tespitsiz (Belge Geri Alınma)',
-    'Fesihli Tespitsiz (YİAM)',
-    'Fesihli Tespitli',
-    'Devir Başvurusu Bekleyen (Fesihli)',
-    'Devir Onayı Bekleyen (Fesihli)',
-    'Dağıtım Bekleyen (Fesihli)',
-    'Veri Aktarımı Bekleyen (Fesihli)',
-    'Devir Başvurusu Bekleyen (Kısmi)',
-    'Devir Onayı Bekleyen (Kısmi)',
-    'Dağıtım Bekleyen (Kısmi)',
-    'Yanan Yıkılan',
-    'Ruhsat İptali',
-    'YİBF İptal',
-    'Kısmi Bitmiş',
-    'Bitmiş',
-    'Migrasyon Ham',
-    'Migrasyon Ham Ruhsat',
-    'Migrasyon İşlenmiş',
-    'Migrasyon Fesihli Eksik Müellif',
-    'Migrasyon Fesihli Eksik Ruhsat',
-    'Güçlendirme İmalatı Başvuru Bekleyen',
-    'Güçlendirme İmalatı Onay Bekleyen',
-    'Güçlendirme İptal']
+    const workStateOptions = [
+        'Ön Kayıt',
+        'İdare Onayı Bekleyen (Dağıtım)',
+        'Dağıtım Bekleyen',
+        'Ruhsat Başvuru Bekleyen',
+        'Ruhsat Bekleyen',
+        'Güncel',
+        'Küme Onayı Bekleyen',
+        'Ruhsat Redli',
+        'Ruhsat Redli (Ceza Sonucu)',
+        'Ruhsat Redli (Belge Geri Alınma)',
+        'Fesihli Tespitsiz',
+        'Fesihli Tespitsiz (Ceza Sebebiyle)',
+        'Fesihli Tespitsiz (Belge Geri Alınma)',
+        'Fesihli Tespitsiz (YİAM)',
+        'Fesihli Tespitli',
+        'Devir Başvurusu Bekleyen (Fesihli)',
+        'Devir Onayı Bekleyen (Fesihli)',
+        'Dağıtım Bekleyen (Fesihli)',
+        'Veri Aktarımı Bekleyen (Fesihli)',
+        'Devir Başvurusu Bekleyen (Kısmi)',
+        'Devir Onayı Bekleyen (Kısmi)',
+        'Dağıtım Bekleyen (Kısmi)',
+        'Yanan Yıkılan',
+        'Ruhsat İptali',
+        'YİBF İptal',
+        'Kısmi Bitmiş',
+        'Bitmiş',
+        'Migrasyon Ham',
+        'Migrasyon Ham Ruhsat',
+        'Migrasyon İşlenmiş',
+        'Migrasyon Fesihli Eksik Müellif',
+        'Migrasyon Fesihli Eksik Ruhsat',
+        'Güçlendirme İmalatı Başvuru Bekleyen',
+        'Güçlendirme İmalatı Onay Bekleyen',
+        'Güçlendirme İptal'
+      ];
+    const yapiDenetimFirmalari = [
+        "Güven Yapı Denetim Ltd. Şti.",
+        "Proje Kontrol Yapı Denetim Ltd. Şti.",
+        "Kalite Yapı Denetim Ltd. Şti.",
+        "İnşaat Güvencesi Yapı Denetim Ltd. Şti.",
+        "Yapı İzleme Denetim Ltd. Şti.",
+        "Teknik Denetim Yapı Denetim Ltd. Şti.",
+        "Yapı Standartları Denetim Ltd. Şti.",
+        "İnşaat Denetim Sistemleri Ltd. Şti.",
+        "Proje Güvenliği Yapı Denetim Ltd. Şti.",
+        "Denetim Yapı Denetim Ltd. Şti.",
+        "Stratejik Yapı Denetim Ltd. Şti.",
+        "Kalite Kontrol Yapı Denetim Ltd. Şti.",
+        "Yapı Güvencesi Denetim Ltd. Şti.",
+        "İnşaat İzleme Yapı Denetim Ltd. Şti.",
+        "Proje Denetim Ofisi Ltd. Şti.",
+        "Yapı Sertifikasyon Denetim Ltd. Şti.",
+        "Güvenilir Yapı Denetim Ltd. Şti.",
+        "Proje Yönetim Yapı Denetim Ltd. Şti.",
+        "İnşaat Denetim Uzmanları Ltd. Şti.",
+        "Mühendislik Yapı Denetim Ltd. Şti."
+      ];
+      const isBasliklari = [
+        "MAVİ YAPI - A BLOK",
+        "YILDIZ A.Ş. İSTİNAT DUVARI",
+        "MAVİ YAPI - B BLOK",
+        "ALİ KARA İSTİNAT DUVARI",
+        "ALİ KARA VE HİSS.",
+        "AHMET DEMİR VİLLA",
+        "AYŞE GÜL VİLLA",
+        "MEHMET KAYA VİLLA",
+        "ZEYNEP ALTUN HAVUZ",
+        "MUSTAFA YILMAZ İSTİNAT DUVARI",
+        "SELİN TUNA VİLLA",
+        "HÜSEYİN ÇELİK VİLLA",
+        "FATMA YAVUZ VİLLA",
+        "OĞUZ KORU VİLLA",
+        "DİDEM KARA İSTİNAT DUVARI",
+        "EGE YAPI - D BLOK",
+        "SİNAN BAHÇE",
+        "GÖKÇE KAPI VİLLA",
+        "KÜBRA YAPI - E BLOK"
+      ];
+      const istanbulBelediyeler = [
+        "Adalar",
+        "Arnavutköy",
+        "Ataşehir",
+        "Avcılar",
+        "Bağcılar",
+        "Bahçelievler",
+        "Bakırköy",
+        "Bayrampaşa",
+        "Beşiktaş",
+        "Beyoğlu",
+        "Büyükçekmece",
+        "Çatalca",
+        "Esenler",
+        "Esenyurt",
+        "Eyüpsultan",
+        "Fatih",
+        "Gaziosmanpaşa",
+        "Güngören",
+        "Kadıköy",
+        "Kağıthane",
+        "Kartal",
+        "Maltepe",
+        "Pendik",
+        "Sancaktepe",
+        "Sarıyer",
+        "Silivri",
+        "Şile",
+        "Tuzla",
+        "Ümraniye",
+        "Üsküdar",
+        "Zeytinburnu"
+      ];
+      
+    const getRandomDate = () => {
+    const start = new Date(2020, 0, 1).getTime();
+    const end = Date.now();
+    const randomDate = new Date(start + Math.random() * (end - start));
+    return `${randomDate.toLocaleDateString('tr-TR')}`;
+    };
 
     let data = [];
 
     for (let i = 1; i <= count; i++) {
+        let ilgili_idare_ve_ilce = istanbulBelediyeler[Math.floor(Math.random() * istanbulBelediyeler.length)]
+        // ilgili ilçeye ilgili idare bakar.
         let userData = {
+            "YIBF-Errors": SorunUretici(2),
+            "YIBF-Ozellik": {
+                "Yibf-Turu": ["Küme YİBF", "Eklenti YİBF", "Normal"][Math.floor(Math.random() * 3)]
+            },
             "Ana Bilgiler": {
                 "YİBF No": Math.floor(10000000 + Math.random() * 9000),
-                "Yapı Denetim Kuruluşu": `Yapı Denetim Kuruluşu ${i}`,
+                "Yapı Denetim Kuruluşu": yapiDenetimFirmalari[Math.floor(Math.random() * yapiDenetimFirmalari.length)],
                 "Yapı Denetim Adres": `Yapı Denetim Adres ${i}`,
                 "Yapı Denetim Telefon": `0${Math.floor(Math.random() * 9000000000 + 1000000000)}`,
-                "İlgili İdare": `İlgili İdareili ili  ${i}`,
-                "İl": cities[Math.floor(Math.random() * cities.length)],
+                "İlgili İdare": ilgili_idare_ve_ilce,
+                "İl": cities[0],
                 "Durum": workStateOptions[Math.floor(Math.random() * workStateOptions.length)],
-                "İş Başlık": `İş Başlık ${i}+${i}+${i}`,
-                "Sözleşme Tarihi": `Sözleşme Tarihi ${i}`,
+                "İş Başlık": isBasliklari[Math.floor(Math.random() * isBasliklari.length)],
+                "Sözleşme Tarihi": getRandomDate(),
                 "Dağıtım Tarihi": `Dağıtım Tarihi ${i}`,
                 "Ruhsat Tarihi": `Ruhsat Tarihi ${i}`,
                 "Ruhsat No": Math.floor(100 + Math.random() * 900),
@@ -80,13 +216,13 @@ function generateRandomData(count) {
                 "Sanayii Sitesi": Math.random() >= 0.5 ? 'Evet' : 'Hayır',
                 // ------                
                 "Kısmi": Math.random() >= 0.5 ? 'Evet' : 'Hayır',
-                "Seviye": Math.floor(Math.random() * 10) + 1,
+                "Seviye": `${Math.floor(Math.random() * 100) + 1}%`,
                 "Kalan Alan (m²)": Math.floor(Math.random() * 10000) + 1000,
                 "Yapı İnşaat Alanı (m²)": Math.floor(Math.random() * 5000) + 500,
-                "İlçe": `İlçe ${i}`,
+                "İlçe": ilgili_idare_ve_ilce,
                 "Mahalle/Köy": `Mahalle/Köy ${i}`,
                 "Birim Fiyat": Math.random() * 1000 + 100,
-                "Yapı Sınıfı": `Yapı Sınıfı ${i}`,
+                "Yapı Sınıfı": ["1A","1B","1C","2A","2B","2C","3A","3B","3C","4A","4B","4C",][Math.floor(Math.random() * 12)],
                 "Küme Yapı Mı?": Math.random() < 0.5 ? 'Evet' : 'Hayır',
                 "Eklenti": Math.random() < 0.5 ? 'Evet' : 'Hayır',
                 "Güçlendirme": `Güçlendirme ${i}`,
@@ -168,7 +304,7 @@ function findNestedValue(obj, key) {
     return null;
 }
 
-const data = generateRandomData(65);
+let data = generateRandomData(65);
 
 function generateTransactionHistory(data, transactionCount) {
     const transactionHistory = [];
@@ -415,9 +551,31 @@ function generateTransactionHistory(data, transactionCount) {
         "Umut Sezer",
         "Seda Arı",
         "Kaan Tekin"
-      ];
+    ];
 
     data.forEach(entry => {
+        const yapiDenetimFirmalari = [
+            "Güven Yapı Denetim Ltd. Şti.",
+            "Proje Kontrol Yapı Denetim Ltd. Şti.",
+            "Kalite Yapı Denetim Ltd. Şti.",
+            "İnşaat Güvencesi Yapı Denetim Ltd. Şti.",
+            "Yapı İzleme Denetim Ltd. Şti.",
+            "Teknik Denetim Yapı Denetim Ltd. Şti.",
+            "Yapı Standartları Denetim Ltd. Şti.",
+            "İnşaat Denetim Sistemleri Ltd. Şti.",
+            "Proje Güvenliği Yapı Denetim Ltd. Şti.",
+            "Denetim Yapı Denetim Ltd. Şti.",
+            "Stratejik Yapı Denetim Ltd. Şti.",
+            "Kalite Kontrol Yapı Denetim Ltd. Şti.",
+            "Yapı Güvencesi Denetim Ltd. Şti.",
+            "İnşaat İzleme Yapı Denetim Ltd. Şti.",
+            "Proje Denetim Ofisi Ltd. Şti.",
+            "Yapı Sertifikasyon Denetim Ltd. Şti.",
+            "Güvenilir Yapı Denetim Ltd. Şti.",
+            "Proje Yönetim Yapı Denetim Ltd. Şti.",
+            "İnşaat Denetim Uzmanları Ltd. Şti.",
+            "Mühendislik Yapı Denetim Ltd. Şti."
+          ];
         const yibfNo = entry["Ana Bilgiler"]["YİBF No"];
         
         for (let i = 0; i < transactionCount; i++) {
@@ -426,7 +584,8 @@ function generateTransactionHistory(data, transactionCount) {
                 "İşlem Zamanı": new Date(Date.now() - Math.floor(Math.random() * 365 * 24 * 60 * 60 * 1000)), // Son 1 yıl içinde rastgele bir tarih
                 "İşlem": transactionTypes[Math.floor(Math.random() * transactionTypes.length)],
                 "Denetim Elemanı": Math.random() < 0.4 ? null : `Denetim Elemanı ${Math.floor(Math.random() * 100)}`,
-                "YDK/LAB": Math.random() < 0.2 ? null : `YDK/LAB ${Math.floor(Math.random() * 100)}`,
+                "YDK/LAB": Math.random() < 0.5 ? null : yapiDenetimFirmalari[Math.floor((yibfNo % 10) /10 * yapiDenetimFirmalari.length)],
+                // YDK için ilgili yibf no kullanılarak o yibf'e özgü rastgele yapı denetim ataması taklit ettik.
                 "Gerçekleştiren": rastgeleIsimler[Math.floor(Math.random() * rastgeleIsimler.length)]
             };
             transactionHistory.push(transactionRecord);
@@ -437,6 +596,7 @@ function generateTransactionHistory(data, transactionCount) {
 }
 
 const transactionHistory = generateTransactionHistory(data, 90); // Her biri için 90 işlem
+
 
 // Filtreleme işlemi için veri sağlayan endpoint
 app.get('/api/data', (req, res) => {
@@ -535,13 +695,26 @@ app.get('/api/data', (req, res) => {
 app.get('/api/data/log', (req, res) => {
     const dataID = req.query.log;
     const filteredData = transactionHistory.filter(item => item.YİBF_NO === Number(dataID));
+
+    // verileri tarihe göre yeniden eskiye sıralayalım.
+    const filteredDataSorted = filteredData.sort((a, b) => {
+        return new Date(b["İşlem Zamanı"]) - new Date(a["İşlem Zamanı"]);
+    });
+
+    // sayfalama için
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    
+    const filteredDataSliced = filteredData.slice(startIndex, endIndex);
+
     // Yanıtı gönder
     res.json({
-        data: filteredData
+        data: filteredDataSliced,
+        total: filteredDataSorted.length
     });
 });
-
-
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
