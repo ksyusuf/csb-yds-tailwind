@@ -74,7 +74,7 @@ function Popup() {
 
   if (dataRow === null || typeof dataRow !== 'object') {
     return (
-      <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center">
+      <div className="fixed top-0 left-0 w-full h-full bg-gray-600 bg-opacity-50 flex justify-center items-center">
         <div className="bg-white p-6 rounded-lg max-h-[80vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">
@@ -118,7 +118,7 @@ function Popup() {
   const maxKeyWidth = Math.max(...Object.values(KEYS_TO_DISPLAY).flat().map(key => key.length));
 
   return (
-    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center">
+    <div className="fixed top-0 left-0 w-full h-full bg-gray-600 bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-6 rounded-lg max-h-[80vh] flex flex-col">
         <header className="flex justify-between items-center mb-4 sticky">
           <h2 className="text-xl font-semibold">

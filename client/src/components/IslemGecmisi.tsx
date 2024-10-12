@@ -43,7 +43,7 @@ function Popup() {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   return (
-    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center">
+    <div className="fixed top-0 left-0 w-full h-full bg-gray-600 bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-6 rounded-lg max-h-[80vh] flex flex-col">
         <header className="flex justify-between items-center mb-4 sticky">
           <h2 className="text-xl font-semibold">
